@@ -12,8 +12,12 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
     "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
+    "semantic-release": "^24.2.7",
     "turbo": "^2.5.5",
     "typescript": "5.8.3"
   },
@@ -24,5 +28,11 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "lint-staged": {
+    "*.{ts, tsx, js, jsx, json, md}": [
+      "yarn format",
+      "yarn lint"
+    ]
+  }
 }

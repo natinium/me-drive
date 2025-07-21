@@ -1,1 +1,1 @@
-yarn -v
+npx lint-staged

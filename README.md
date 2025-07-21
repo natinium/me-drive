@@ -8,8 +8,8 @@ An opensource google drive alternative that you can host.
 
 Repo: monorepo (turborepo)
 
-
 ## Frontend
+
 framework: Next js v15, app routing
 auth: auth js
 state: zustand
@@ -19,19 +19,23 @@ ui components: shadcn
 data: tanstack query
 
 ## Backend
+
 framework: Nest js
 database: supabase + prisma
 api docs: swagger
 
 ## dev tools
+
 githooks: husky
 linting: commitlint, eslint, prettier, lintstaged
 
 ## CICD
+
 service: github actions
 release: semantic release
 
 ## services
+
 frontend hosting: vercel
 backend hosting: render
 databse: supabase

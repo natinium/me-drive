@@ -31,9 +31,12 @@
     "packages/*"
   ],
   "lint-staged": {
-    "*.{ts, tsx, js, jsx, json, md}": [
+    "**/*.{ts, tsx, js, jsx}": [
       "yarn format",
-      "yarn lint"
+      "eslint --fix"
+    ],
+    "**/*.{json, md}": [
+      "yarn format"
     ]
   }
 }

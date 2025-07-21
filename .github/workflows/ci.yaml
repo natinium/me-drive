@@ -11,21 +11,24 @@ on:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Setup Node js envt
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-    - name: install dependencies
-      run: yarn install --frozen-lockfile
 
-    - name: run lint
-      run: yarn lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: run tests
-      run: yarn test
+      - name: Setup Node js envt
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-    - name: build project
-      run: yarn build
+      - name: install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: run lint
+        run: yarn lint
+
+      - name: run tests
+        run: yarn test
+
+      - name: build project
+        run: yarn build

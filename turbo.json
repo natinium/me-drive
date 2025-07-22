@@ -2,6 +2,10 @@
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
   "tasks": {
+    "generate": {
+      "cache": true,
+      "outputs": ["node_modules/.prisma/client/**"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
@@ -18,7 +22,7 @@
       "persistent": true
     },
     "test": {
-      "dependsOn": ["build"] 
+      "dependsOn": ["build"]
     }
   }
 }

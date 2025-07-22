@@ -12,6 +12,10 @@ jobs:
   test-and-build:
     runs-on: ubuntu-latest
 
+    env:
+      API_URL: 'http://localhost:3001'
+      AUTH_SECRET: 'dummy-secret-for-testing-purposes'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

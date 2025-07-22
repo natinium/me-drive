@@ -1,96 +1,74 @@
-"use client";
 import {
   ChevronUp,
-  FileUp,
   Folder,
-  FolderPlus,
   Home,
-  LucideIcon,
-  Plus,
-  User2,
+  Infinity,
 } from "lucide-react";
-import { Button } from "./ui/button";
+import { auth, signOut } from "@/auth";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { useUIStore } from "@/stores/useUIStore";
+import { NewItemButton } from "./new-item-button"; // <-- IMPORT THE NEW COMPONENT
 
-interface SidebarMenuItems {
-  title: string;
-  url: string;
-  icon: LucideIcon;
-}
-
-const items: SidebarMenuItems[] = [
+// Menu items
+const items = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "My drive", url: "/my-drive", icon: Folder },
+  { title: "MyDrive", url: "/my-drive", icon: Folder },
 ];
 
-export function AppSidebar() {
-  const { state } = useSidebar();
-  const { openCreateFolderDialog, openUploadFileDialog } = useUIStore();
+export async function AppSidebar() {
+  const session = await auth();
+
+  const getInitials = (name?: string | null) => {
+    // ... (your existing function)
+    if (!name) return ""
+    const names = name.split(" ")
+    if (names.length > 1) {
+      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
+    }
+    return name.substring(0, 2).toUpperCase()
+  };
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="group">
       <SidebarHeader>
-        <div className="flex items-center gap-3">
-          <div className="bg-gray-500 text-white flex items-center justify-center w-10 h-10 rounded-xl">
-            G
-          </div>
-          {state === "expanded" && (
-            <span className="font-semibold">G-drive</span>
-          )}
+        <div className="flex items-center gap-2.5 justify-center">
+          <Infinity className="size-6 flex-shrink-0" />
         </div>
       </SidebarHeader>
 
       <SidebarContent>
-        <div className="p-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="w-full justify-start shadow-md">
-                <Plus className="mr-2 h-4 w-4" />
-                <span>New</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="start">
-              <DropdownMenuItem onClick={openCreateFolderDialog}>
-                <FolderPlus className="mr-2 h-4 w-4" />
-                <span>New Folder</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={openUploadFileDialog}>
-                <FileUp className="mr-2 h-4 w-4" />
-                <span>File Upload</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        {/* --- ADD THE NEW BUTTON HERE --- */}
+        <NewItemButton /> 
 
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
-          <SidebarGroupContent>
+          {/* You can remove the "Application" label if you wish */}
+          <SidebarGroupContent className="mt-4">
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <a href={item.url}>
                       <item.icon />
-                      <span>{item.title}</span>
+                      <span className="group-data-[collapsed=true]:hidden">
+                        {item.title}
+                      </span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -101,24 +79,45 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
+        {/* ... (rest of your footer code is unchanged) ... */}
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  <User2 /> Username <ChevronUp className="ml-auto" />
+                  <div className="flex w-full items-center gap-2">
+                    <Avatar className="size-6">
+                      <AvatarImage src={session?.user?.image ?? undefined} />
+                      <AvatarFallback>
+                        {getInitials(session?.user?.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="truncate group-data-[collapsed=true]:hidden">
+                      {session?.user?.name ?? "Account"}
+                    </span>
+                  </div>
+                  <ChevronUp className="ml-auto group-data-[collapsed=true]:hidden" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 side="top"
-                className="w-[--radix-popper-anchor-width]"
+                className="w-[--radix-popper-anchor-width] mb-2"
               >
-                <DropdownMenuItem>
-                  <span>Account</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>Sign out</span>
-                </DropdownMenuItem>
+                <DropdownMenuItem>Account</DropdownMenuItem>
+                <DropdownMenuItem>Billing</DropdownMenuItem>
+                <form
+                  action={async () => {
+                    "use server";
+                    await signOut();
+                  }}
+                  className="w-full"
+                >
+                  <button type="submit" className="w-full">
+                    <DropdownMenuItem className="cursor-pointer">
+                      Sign out
+                    </DropdownMenuItem>
+                  </button>
+                </form>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

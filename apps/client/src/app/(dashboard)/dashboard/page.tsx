@@ -1,86 +1,83 @@
-import { auth } from "@/auth";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { File, Folder, HardDrive, Users } from "lucide-react";
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow } from "@/components/ui/table"
+import { File, Folder, HardDrive } from "lucide-react"
 
-// In a real app, this data would come from an API call
-const getDashboardData = async () => {
-  return {
-    stats: {
-      totalFiles: 125,
-      storageUsed: 5.6, // in GB
-      storageTotal: 15, // in GB
-      sharedWith: 3,
-    },
-    recentItems: [
-      {
-        id: "file1",
-        name: "Q4_Financial_Report.xlsx",
-        type: "file",
-        lastModified: "2 hours ago",
-      },
-      {
-        id: "folder1",
-        name: "Project Alpha",
-        type: "folder",
-        lastModified: "8 hours ago",
-      },
-      {
-        id: "file2",
-        name: "Onboarding_Slides.pptx",
-        type: "file",
-        lastModified: "1 day ago",
-      },
-      {
-        id: "file3",
-        name: "company-logo-final.svg",
-        type: "file",
-        lastModified: "3 days ago",
-      },
-      {
-        id: "folder2",
-        name: "Client Invoices",
-        type: "folder",
-        lastModified: "5 days ago",
-      },
-    ],
-  };
-};
+// We can reuse the DriveItem type from the my-drive page
+type DriveItem = {
+  id: number
+  name: string
+  type: 'file' | 'folder'
+  size: number | null
+  updatedAt: string
+}
+
+// Helper to fetch data (could be moved to a shared lib file)
+async function getDriveData(): Promise<DriveItem[]> {
+  const session = await auth()
+  if (!session?.accessToken) redirect("/auth/login")
+
+  try {
+    const response = await fetch(`${process.env.API_URL}/files`, {
+      headers: { Authorization: `Bearer ${session.accessToken}` },
+      cache: 'no-store',
+    });
+    if (!response.ok) return []
+    return await response.json() as DriveItem[]
+  } catch (error) {
+    return []
+  }
+}
+
+// Helper to format bytes
+const formatBytes = (bytes: number, decimals = 2) => {
+  if (!+bytes) return '0 Bytes'
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+}
 
 export default async function DashboardPage() {
-  const session = await auth();
-  const data = await getDashboardData();
-  const storagePercentage =
-    (data.stats.storageUsed / data.stats.storageTotal) * 100;
+  const allItems = await getDriveData()
+
+  // --- Calculate Stats ---
+  const totalFiles = allItems.filter(item => item.type === 'file').length
+  const totalFolders = allItems.filter(item => item.type === 'folder').length
+  const totalStorageUsed = allItems
+    .filter(item => item.type === 'file' && item.size)
+    .reduce((sum, file) => sum + (file.size ?? 0), 0)
+
+  // --- Get Recent Files ---
+  const recentFiles = allItems
+    .filter(item => item.type === 'file')
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .slice(0, 5) // Get the 5 most recent files
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back, {session?.user?.name?.split(" ")[0] || "User"}!
-        </h1>
-        <p className="text-muted-foreground">
-          Here&apos;s a quick overview of your drive.
-        </p>
-      </div>
-
-      {/* Stats Cards Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+      <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+      
+      {/* Stat Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Files & Folders
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total Files</CardTitle>
             <File className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.stats.totalFiles}</div>
-            <p className="text-xs text-muted-foreground">+2 since last week</p>
+            <div className="text-2xl font-bold">{totalFiles}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Folders</CardTitle>
+            <Folder className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalFolders}</div>
           </CardContent>
         </Card>
         <Card>
@@ -89,62 +86,39 @@ export default async function DashboardPage() {
             <HardDrive className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {data.stats.storageUsed} GB
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {storagePercentage.toFixed(1)}% of {data.stats.storageTotal} GB
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Shared With Me
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              +{data.stats.sharedWith} items
-            </div>
-            <p className="text-xs text-muted-foreground">
-              From 2 collaborators
-            </p>
+            <div className="text-2xl font-bold">{formatBytes(totalStorageUsed)}</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Files Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Files</CardTitle>
-          <CardDescription>
-            A list of your most recently accessed or modified files and folders.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {data.recentItems.map((item) => (
-              <div key={item.id} className="flex items-center">
-                {item.type === "folder" ? (
-                  <Folder className="h-5 w-5 mr-4 text-blue-500" />
-                ) : (
-                  <File className="h-5 w-5 mr-4 text-gray-500" />
-                )}
-                <div className="flex-1">
-                  <p className="text-sm font-medium leading-none">
-                    {item.name}
-                  </p>
-                </div>
-                <div className="ml-auto text-sm text-muted-foreground">
-                  {item.lastModified}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Recent Files Table */}
+      <div>
+        <h2 className="text-2xl font-semibold tracking-tight">Recent Files</h2>
+        <Card className="mt-2">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Last Modified</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentFiles.length > 0 ? (
+                recentFiles.map(file => (
+                  <TableRow key={file.id}>
+                    <TableCell className="font-medium">{file.name}</TableCell>
+                    <TableCell>{new Date(file.updatedAt).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={2} className="text-center">No recent files.</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </Card>
+      </div>
     </div>
-  );
+  )
 }

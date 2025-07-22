@@ -1,132 +1,95 @@
-"use client";
+"use client"
 
-import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Folder, File, MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { ColumnDef } from "@tanstack/react-table"
+import { File, Folder, MoreHorizontal } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { format } from "date-fns";
-import { useUIStore } from "@/stores/useUIStore";
+} from "@/components/ui/dropdown-menu"
 
+// Define the shape of our data for a file or folder.
+// Based on your API, we can infer these properties.
 export type DriveItem = {
-  id: string;
-  name: string;
-  type: "folder" | "file";
-  owner: string;
-  lastModified: Date;
-  size: number | null;
-};
+  id: number
+  name: string
+  type: 'file' | 'folder' // We need to distinguish between files and folders
+  size: number | null // Folders won't have a size
+  updatedAt: string // Comes as an ISO date string from the API
+}
+
+// Helper function to format bytes into KB, MB, GB etc.
+const formatBytes = (bytes: number, decimals = 2) => {
+  if (!+bytes) return '0 Bytes'
+  const k = 1024
+  const dm = decimals < 0 ? 0 : decimals
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+}
+
 
 export const columns: ColumnDef<DriveItem>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
     accessorKey: "name",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Name <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
+    header: "Name",
     cell: ({ row }) => {
-      const item = row.original;
+      const item = row.original
       return (
-        <div className="flex items-center gap-2">
-          {item.type === "folder" ? (
-            <Folder className="h-4 w-4 text-blue-500" />
+        <div className="flex items-center gap-2 font-medium">
+          {item.type === 'folder' ? (
+            <Folder className="size-4 text-sky-500" />
           ) : (
-            <File className="h-4 w-4 text-gray-500" />
+            <File className="size-4 text-gray-500" />
           )}
-          <span className="font-medium">{item.name}</span>
+          <span>{item.name}</span>
         </div>
-      );
+      )
     },
   },
-  { accessorKey: "owner", header: "Owner" },
   {
-    accessorKey: "lastModified",
+    accessorKey: "updatedAt",
     header: "Last Modified",
-    cell: ({ row }) => (
-      <span>{format(new Date(row.original.lastModified), "PPp")}</span>
-    ),
+    cell: ({ row }) => {
+      const date = new Date(row.getValue("updatedAt"))
+      return <div>{date.toLocaleDateString()}</div>
+    },
   },
   {
     accessorKey: "size",
-    header: "File Size",
+    header: "Size",
     cell: ({ row }) => {
-      const { size, type } = row.original;
-      if (type === "folder" || size === null) return "—";
-      if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
-      return `${(size / 1024 / 1024).toFixed(1)} MB`;
+      const item = row.original
+      // Show size for files, or a dash for folders
+      return <div>{item.type === 'file' && item.size ? formatBytes(item.size) : '—'}</div>
     },
   },
   {
     id: "actions",
     cell: ({ row }) => {
-      const item = row.original;
-      const { openRenameDialog, openDeleteDialog } = useUIStore.getState();
+      const item = row.original
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(item.id)}
-            >
-              Copy ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => openRenameDialog(item)}>
-              Rename
-            </DropdownMenuItem>
-            {item.type === "file" && (
-              <DropdownMenuItem>Download</DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-red-500 focus:text-red-500"
-              onClick={() => openDeleteDialog(item)}
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+        <div className="text-right">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {/* Add actions like Download, Rename, Delete etc. here */}
+              {item.type === 'file' && <DropdownMenuItem>Download</DropdownMenuItem>}
+              <DropdownMenuItem>Rename</DropdownMenuItem>
+              <DropdownMenuItem className="text-red-500">Delete</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )
     },
   },
-];
+]

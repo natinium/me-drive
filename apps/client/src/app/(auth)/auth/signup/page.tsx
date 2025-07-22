@@ -1,13 +1,11 @@
-import { SignUpForm } from "@/components/sign-up-form";
+import { SignupForm } from "@/components/signup-form";
 
-const SignUp = () => {
+export default function SignupPage() {
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
-        <SignUpForm />
+    <main className="flex min-h-screen items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <SignupForm />
       </div>
-    </div>
+    </main>
   );
-};
-
-export default SignUp;
+}

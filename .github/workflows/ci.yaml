@@ -29,8 +29,10 @@ jobs:
 
       - name: run tests
         run: yarn test
-        env: 
-          API_URL: ${{ secrets.API_URL }}
+        env:
+          API_URL: 'http://localhost:3001'
+          # You also need to provide an AUTH_SECRET for NextAuth
+          AUTH_SECRET: 'dummy-secret-for-testing-purposes'
 
       - name: build project
         run: yarn build

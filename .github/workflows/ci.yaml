@@ -12,8 +12,13 @@ jobs:
   test-and-build:
     runs-on: ubuntu-latest
 
+    env:
+      API_URL: {{secrets.API_URL}
+      AUTH_SECRET: 'dummy-secret-for-testing-purposes'
+
     steps:
       - name: Checkout code
+
         uses: actions/checkout@v4
 
       - name: Setup Node js envt

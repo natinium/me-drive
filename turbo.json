@@ -9,10 +9,10 @@
     "build": {
       "dependsOn": ["^build", "generate"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "lint": {
-      "dependsOn": ["generate", "^lint"]
+      "dependsOn": ["generate"]
     },
     "check-types": {
       "dependsOn": ["^check-types"]

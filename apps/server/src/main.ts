@@ -9,10 +9,10 @@ async function bootstrap() {
     .setTitle('MeDrive')
     .setDescription('The MeDrive API description')
     .setVersion('1.0')
-    .addTag('cats')
     .build();
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, documentFactory);
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT ?? 3001);
 }

@@ -1,16 +1,16 @@
-import { auth } from "@/auth" // We need the session for the auth token
-import { columns, DriveItem } from "./columns"
-import { DataTable } from "./data-table"
-import { redirect } from "next/navigation"
+import { auth } from "@/auth"; // We need the session for the auth token
+import { columns, DriveItem } from "./columns";
+import { DataTable } from "./data-table";
+import { redirect } from "next/navigation";
 
 // This function fetches data from your protected API endpoint
 async function getDriveData(): Promise<DriveItem[]> {
-  const session = await auth()
-  
+  const session = await auth();
+
   // If no session, the user isn't logged in. You can redirect them.
   // The middleware should handle this, but it's good practice.
   if (!session?.accessToken) {
-    redirect("/auth/login")
+    redirect("/auth/login");
   }
 
   try {
@@ -20,28 +20,27 @@ async function getDriveData(): Promise<DriveItem[]> {
         Authorization: `Bearer ${session.accessToken}`,
       },
       // Use 'no-store' to ensure data is fresh on every request
-      cache: 'no-store', 
+      cache: "no-store",
     });
 
     if (!response.ok) {
       // Handle API errors (e.g., token expired, server down)
-      console.error("Failed to fetch drive data:", response.statusText)
-      return [] // Return empty array on error
+      console.error("Failed to fetch drive data:", response.statusText);
+      return []; // Return empty array on error
     }
 
-    const data = await response.json()
+    const data = await response.json();
     // You might need to add a 'type' property if your API doesn't provide it
     // For now, let's assume it does. If not, you'd map over `data` here.
-    return data as DriveItem[]
-    
+    return data as DriveItem[];
   } catch (error) {
-    console.error("Error in getDriveData:", error)
-    return []
+    console.error("Error in getDriveData:", error);
+    return [];
   }
 }
 
 export default async function MyDrivePage() {
-  const data = await getDriveData()
+  const data = await getDriveData();
 
   return (
     // Add some padding and a title to the page
@@ -52,5 +51,5 @@ export default async function MyDrivePage() {
       </p>
       <DataTable columns={columns} data={data} />
     </div>
-  )
+  );
 }

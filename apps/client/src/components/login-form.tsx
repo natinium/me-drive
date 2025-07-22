@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
-import { Eye, EyeOff } from "lucide-react"; 
+import { Eye, EyeOff } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
-  
+
   const [showPassword, setShowPassword] = useState(false);
 
   return (
@@ -69,7 +69,7 @@ export function LoginForm({
                 <div className="relative">
                   <Input
                     id="password"
-                    name="password" 
+                    name="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="password"
                     required
@@ -78,7 +78,9 @@ export function LoginForm({
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5" />

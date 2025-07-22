@@ -28,7 +28,11 @@ import { SidebarMenuButton } from "./ui/sidebar";
 // A submit button that shows a pending state
 function DialogSubmitButton({ children }: { children: React.ReactNode }) {
   const { pending } = useFormStatus();
-  return <Button type="submit" aria-disabled={pending}>{pending ? "Saving..." : children}</Button>
+  return (
+    <Button type="submit" aria-disabled={pending}>
+      {pending ? "Saving..." : children}
+    </Button>
+  );
 }
 
 export function NewItemButton() {
@@ -39,10 +43,16 @@ export function NewItemButton() {
   const [isFileDialogOpen, setFileDialogOpen] = useState(false);
 
   // Form state for creating a folder
-  const [folderFormState, dispatchFolderAction] = useFormState(createFolder, undefined);
+  const [folderFormState, dispatchFolderAction] = useFormState(
+    createFolder,
+    undefined,
+  );
   // Form state for uploading a file
-  const [fileFormState, dispatchFileAction] = useFormState(uploadFile, undefined);
-  
+  const [fileFormState, dispatchFileAction] = useFormState(
+    uploadFile,
+    undefined,
+  );
+
   // Close dialog on successful submission
   useEffect(() => {
     if (folderFormState?.message === "success") setFolderDialogOpen(false);
@@ -61,7 +71,11 @@ export function NewItemButton() {
             <span className="group-data-[collapsed=true]:hidden">New</span>
           </SidebarMenuButton>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 ml-4 mb-2" side="top" align="start">
+        <DropdownMenuContent
+          className="w-56 ml-4 mb-2"
+          side="top"
+          align="start"
+        >
           <DropdownMenuItem onSelect={() => setFolderDialogOpen(true)}>
             <FolderPlus className="mr-2 h-4 w-4" />
             <span>New Folder</span>
@@ -89,16 +103,19 @@ export function NewItemButton() {
               {/* This hidden input passes the current folder context */}
               <input type="hidden" name="parentId" value={folderId || ""} />
             </div>
-            {folderFormState?.message && folderFormState.message !== "success" && (
-              <p className="text-sm text-red-500">{folderFormState.message}</p>
-            )}
+            {folderFormState?.message &&
+              folderFormState.message !== "success" && (
+                <p className="text-sm text-red-500">
+                  {folderFormState.message}
+                </p>
+              )}
             <DialogFooter>
               <DialogSubmitButton>Create Folder</DialogSubmitButton>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
-      
+
       {/* Upload File Dialog */}
       <Dialog open={isFileDialogOpen} onOpenChange={setFileDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
@@ -109,7 +126,11 @@ export function NewItemButton() {
             </DialogDescription>
           </DialogHeader>
           {/* IMPORTANT: Add encType for file uploads */}
-          <form action={dispatchFileAction} encType="multipart/form-data" className="space-y-4">
+          <form
+            action={dispatchFileAction}
+            encType="multipart/form-data"
+            className="space-y-4"
+          >
             <div className="grid gap-2">
               <Label htmlFor="file">File</Label>
               <Input id="file" name="file" type="file" required />

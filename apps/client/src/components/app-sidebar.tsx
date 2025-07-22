@@ -1,9 +1,4 @@
-import {
-  ChevronUp,
-  Folder,
-  Home,
-  Infinity,
-} from "lucide-react";
+import { ChevronUp, Folder, Home, Infinity } from "lucide-react";
 import { auth, signOut } from "@/auth";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,12 +32,12 @@ export async function AppSidebar() {
 
   const getInitials = (name?: string | null) => {
     // ... (your existing function)
-    if (!name) return ""
-    const names = name.split(" ")
+    if (!name) return "";
+    const names = name.split(" ");
     if (names.length > 1) {
-      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
+      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
     }
-    return name.substring(0, 2).toUpperCase()
+    return name.substring(0, 2).toUpperCase();
   };
 
   return (
@@ -55,7 +50,7 @@ export async function AppSidebar() {
 
       <SidebarContent>
         {/* --- ADD THE NEW BUTTON HERE --- */}
-        <NewItemButton /> 
+        <NewItemButton />
 
         <SidebarGroup>
           {/* You can remove the "Application" label if you wish */}

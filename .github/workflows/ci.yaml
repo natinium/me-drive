@@ -12,13 +12,8 @@ jobs:
   test-and-build:
     runs-on: ubuntu-latest
 
-    env:
-      API_URL: ${{secrets.API_URL}}
-      AUTH_SECRET: 'dummy-secret-for-testing-purposes'
-
     steps:
       - name: Checkout code
-
         uses: actions/checkout@v4
 
       - name: Setup Node js envt
@@ -31,6 +26,22 @@ jobs:
 
       - name: run lint
         run: yarn lint
+
+      - name: ❗️ DEBUG - Check Environment Variables
+        run: |
+          echo "--- Checking for API_URL ---"
+          if [ -z "$API_URL" ]; then
+            echo "API_URL is NOT SET"
+          else
+            echo "API_URL is set to: $API_URL"
+          fi
+
+          echo "--- Checking for AUTH_SECRET ---"
+          if [ -z "$AUTH_SECRET" ]; then
+            echo "AUTH_SECRET is NOT SET"
+          else
+            echo "AUTH_SECRET is set to: [REDACTED]"
+          fi
 
       - name: run tests
         run: yarn test

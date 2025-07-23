@@ -40,22 +40,5 @@ jobs:
       - name: Run Lint
         run: yarn lint
 
-      - name: ❗️ DEBUG - Verify Environment Variables
-        run: |
-          echo "--- Verifying environment variables ---"
-          if [ -z "$API_URL" ]; then
-            echo "❌ API_URL is NOT SET"
-            exit 1
-          else
-            echo "✅ API_URL is set to: $API_URL"
-          fi
-
-          if [ -z "$AUTH_SECRET" ]; then
-            echo "❌ AUTH_SECRET is NOT SET"
-            exit 1
-          else
-            echo "✅ AUTH_SECRET is set to: [REDACTED]"
-          fi
-
       - name: Run Tests (which includes the build)
         run: yarn test

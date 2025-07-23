@@ -11,7 +11,10 @@ import { FoldersModule } from './folders/folders.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      envFilePath: 'apps/server/.env',
+      isGlobal: true,
+    }),
     AuthModule,
     UsersModule,
     PrismaModule,

@@ -34,7 +34,11 @@ export class AuthService {
     return new UserEntity(createdUser);
   }
 
-  async login(email: string, pass: string): Promise<{ access_token: string }> {
+  async login(
+    email: string,
+    pass: string,
+  ): Promise<{ user: UserEntity; access_token: string }> {
+    // 1. Change the return type
     const user = await this.usersService.findOneByEmail(email);
     if (!user || !user.password) {
       throw new UnauthorizedException('Invalid credentials.');
@@ -44,10 +48,16 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials.');
     }
 
-    const payload = { sub: user.id, email: user.email };
+    // 2. Sanitize the user object to remove the password using your UserEntity
+    const sanitizedUser = new UserEntity(user);
 
+    const payload = { sub: user.id, email: user.email };
+    const accessToken = this.jwtService.sign(payload);
+
+    // 3. Return the new structure including the sanitized user and the token
     return {
-      access_token: this.jwtService.sign(payload),
+      user: sanitizedUser,
+      access_token: accessToken,
     };
   }
 }

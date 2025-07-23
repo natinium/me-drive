@@ -1,3 +1,22 @@
+# [1.2.0](https://github.com/natinium/me-drive/compare/v1.1.0...v1.2.0) (2025-07-23)
+
+
+### Bug Fixes
+
+* **cicd:** fix the ci ([b305a38](https://github.com/natinium/me-drive/commit/b305a38db8cfa2216f31cf9e551c7682c3461efd))
+* **cicd:** update ci ([7a52de7](https://github.com/natinium/me-drive/commit/7a52de70cb58707acf78ea6ee0d4ec3437079c12))
+* **structure:** move the login page into auth ([91bbf8b](https://github.com/natinium/me-drive/commit/91bbf8b46a13dff0d0bc712b557f33b8edfb2ee9))
+* **swagger:** update the swagger configuration ([f7e55c4](https://github.com/natinium/me-drive/commit/f7e55c41badfd242173943692d4e1d7b03713d36))
+* **swagger:** update the swagger configuration ([48b2b6c](https://github.com/natinium/me-drive/commit/48b2b6c923a57b1666990c952b4abc7388b655e0))
+* **turborepo:** allow the env varibale to passthrough ([eb529f4](https://github.com/natinium/me-drive/commit/eb529f43a65d4912971701fd56daf19dc89a38a1))
+
+
+### Features
+
+* **client:** build the client ui ([e52732b](https://github.com/natinium/me-drive/commit/e52732bffb7ecaf6025e336dfbd37e60fa50f4cd))
+* **ui:** build the client ui ([ea62e4b](https://github.com/natinium/me-drive/commit/ea62e4b08eb2da381dfa2ed65028602f423fb976))
+* **ui:** build the client ui ([8129450](https://github.com/natinium/me-drive/commit/81294505092fa6d5f05e43b688bd8dc2fb01afcb))
+
 # [1.1.0](https://github.com/natinium/me-drive/compare/v1.0.0...v1.1.0) (2025-07-22)
 
 

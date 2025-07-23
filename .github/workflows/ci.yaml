@@ -5,35 +5,26 @@ on:
     branches:
       - dev
   
-  # IMPORTANT: Use `pull_request_target` to allow access to secrets on PRs from forks.
-  pull_request_target:
+  pull_request:
     branches:
       - main
 
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
-
-    # --- JOB-WIDE ENVIRONMENT VARIABLES ---
-    # These secrets are now available to ALL steps in this job.
-    # They are securely pulled from your repository's secrets settings.
     env:
       API_URL: ${{ secrets.API_URL }}
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
 
     steps:
       - name: Checkout code
-
         uses: actions/checkout@v4
-        # This is critical for `pull_request_target` to test the PR's code, not the main branch's.
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'yarn' # Added for faster dependency installation
+          cache: 'yarn'
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile

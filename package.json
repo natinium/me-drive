@@ -14,6 +14,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
+    "eslint": "^9.32.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
@@ -29,11 +30,7 @@
     "packages/*"
   ],
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix"
-    ],
-    "*.{ts,tsx,md}": [
-      "prettier --write"
-    ]
+    "*.{ts,tsx}": "eslint --fix",
+    "*.{ts,tsx,md}": "prettier --write"
   }
 }

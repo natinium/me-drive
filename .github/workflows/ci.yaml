@@ -1,0 +1,54 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - dev # Run CI on pushes to the development branch
+  
+  pull_request:
+    branches:
+      - main # Run CI on pull requests targeting the main (production) branch
+
+jobs:
+  test-and-build:
+    name: Lint, Build, and Test
+    runs-on: ubuntu-latest
+    
+    # Environment variables needed for your applications.
+    # For CI, you might need dummy values or ensure your tests/builds
+    # don't require live external services.
+    env:
+      # Example: uncomment and replace with actual secrets if needed for build/test
+      # NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+      # AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      # DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Consistent with your project guide
+          cache: 'yarn'      # Cache Yarn dependencies for faster installs
+
+      - name: Install dependencies
+        # Turborepo hoists dependencies to the root node_modules.
+        # `yarn install` at the root will install all workspace dependencies.
+        run: yarn install --frozen-lockfile
+
+      - name: Run Lint
+        # Use `turbo run lint` to run the 'lint' script in all workspaces that have it.
+        run: yarn turbo run lint
+
+      - name: Run Build
+        # Explicitly build all applications within the monorepo.
+        # This ensures all apps can compile correctly.
+        run: yarn turbo run build
+
+      - name: Run Tests
+        # Use `turbo run test` to run the 'test' script in all workspaces that have it.
+        # Ensure your test scripts are configured to run correctly.
+        run: yarn turbo run test

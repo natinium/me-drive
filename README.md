@@ -1,63 +1,143 @@
-# Turborepo starter
+# MeDrive
 
-This Turborepo starter is maintained by the Turborepo core team.
+MeDrive is a modern, self-hostable cloud file hosting platform inspired by Google Drive. Built as a full-stack monorepo, it features a Next.js frontend, a Nest.js backend, and a documentation site—all managed with Turborepo for scalable development.
 
-## Using this example
+---
 
-Run the following command:
+## 🚀 Features
 
-```sh
-npx create-turbo@latest
+- **User Authentication**: Secure login/signup with JWT.
+- **Dashboard**: Stats and recently accessed files.
+- **My Drive**: File/folder management with nested folders.
+- **File Uploads**: Upload, organize, and preview files.
+- **Modern UI**: Built with Tailwind CSS and shadcn/ui.
+- **Self-Hostable**: Easily deploy on your own infrastructure.
+- **API-first**: RESTful API with JWT auth, pagination, and more.
+- **Monorepo**: Shared code, unified tooling, and fast CI/CD.
+
+---
+
+## 🏗️ Architecture
+
+**Monorepo Structure:**
+
+```
+apps/
+  web/      # Next.js frontend
+  server/   # Nest.js backend
+  docs/     # Documentation site
+packages/
+  ui/       # Shared React UI components
+  eslint-config/  # Shared ESLint config
+  typescript-config/ # Shared TS config
 ```
 
-## What's inside?
+**Tech Stack:**
 
-This Turborepo includes the following packages/apps:
+- **Frontend**: Next.js, Tailwind CSS, shadcn/ui, Zustand, TanStack Query, React Hook Form
+- **Backend**: Nest.js, Prisma ORM, Supabase (PostgreSQL), Cloudinary (file storage)
+- **Auth**: NextAuth.js (web), JWT (server)
+- **Testing**: Vitest, Playwright, Jest
+- **Tooling**: Turborepo, ESLint, Prettier, Husky, lint-staged
 
-### Apps and Packages
+---
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+## 📦 Apps & Packages
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- `apps/web`: Main Next.js web app (user interface)
+- `apps/server`: Nest.js API backend
+- `apps/docs`: Documentation site (Next.js)
+- `packages/ui`: Shared React component library
+- `packages/eslint-config`: Shared ESLint config
+- `packages/typescript-config`: Shared TS config
 
-### Utilities
+---
 
-This Turborepo has some additional tools already setup for you:
+## 🛠️ Getting Started
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+### Prerequisites
+
+- Node.js >= 18
+- Yarn 1.x
+
+### Install dependencies
+
+```sh
+yarn install
+```
+
+### Development
+
+Start all apps in development mode:
+
+```sh
+yarn dev
+```
 
 ### Build
 
-To build all apps and packages, run the following command:
+Build all apps and packages:
 
+```sh
+yarn build
 ```
-cd my-turborepo
+
+### Lint & Format
+
+```sh
+yarn lint
+yarn format
+```
+
+### Test
+
+```sh
+yarn test
+```
+
+---
+
+## 📚 Documentation
+
+- [Product Requirements](./docs/prd.md)
+- [API Reference](./docs/api-documentation.md)
+- [Web App Structure](./docs/project-structure-web.md)
+- [Server Structure](./docs/project-structure-server.md)
+- [Spec Sheet](./docs/spec-sheet.md)
+- [Roadmap](./docs/roadmap.md)
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License.
 
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+
 turbo build
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+
 npx turbo build
 yarn dlx turbo build
 pnpm exec turbo build
+
 ```
 
 You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
 
 ```
+
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+
 turbo build --filter=docs
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+
 npx turbo build --filter=docs
 yarn exec turbo build --filter=docs
 pnpm exec turbo build --filter=docs
+
 ```
 
 ### Develop
@@ -65,27 +145,35 @@ pnpm exec turbo build --filter=docs
 To develop all apps and packages, run the following command:
 
 ```
+
 cd my-turborepo
 
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+
 turbo dev
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+
 npx turbo dev
 yarn exec turbo dev
 pnpm exec turbo dev
+
 ```
 
 You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
 
 ```
+
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+
 turbo dev --filter=web
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+
 npx turbo dev --filter=web
 yarn exec turbo dev --filter=web
 pnpm exec turbo dev --filter=web
+
 ```
 
 ### Remote Caching
@@ -98,15 +186,19 @@ Turborepo can use a technique known as [Remote Caching](https://turborepo.com/do
 By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
 
 ```
+
 cd my-turborepo
 
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+
 turbo login
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+
 npx turbo login
 yarn exec turbo login
 pnpm exec turbo login
+
 ```
 
 This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
@@ -114,13 +206,17 @@ This will authenticate the Turborepo CLI with your [Vercel account](https://verc
 Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
 
 ```
+
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+
 turbo link
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+
 npx turbo link
 yarn exec turbo link
 pnpm exec turbo link
+
 ```
 
 ## Useful Links
@@ -133,3 +229,4 @@ Learn more about the power of Turborepo:
 - [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
 - [Configuration Options](https://turborepo.com/docs/reference/configuration)
 - [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+```

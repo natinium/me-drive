@@ -9,7 +9,17 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "e2e": "turbo run e2e",
+    "lint:web": "turbo run lint --filter=web",
+    "lint:server": "turbo run lint --filter=server",
+    "format:web": "turbo run format --filter=web",
+    "format:server": "turbo run format --filter=server",
+    "test:web": "turbo run test --filter=web",
+    "test:server": "turbo run test --filter=server",
+    "e2e:web": "turbo run e2e --filter=web",
+    "e2e:server": "turbo run e2e --filter=server",
+    "clean": "turbo run clean"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",

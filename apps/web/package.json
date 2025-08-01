@@ -10,17 +10,24 @@
     "test": "vitest"
   },
   "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.536.0",
     "next": "15.4.4",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
     "@repo/eslint-config": "*",
+    "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.0",
     "@types/react": "19.1.9",
     "@vitejs/plugin-react": "^4.7.0",
     "jsdom": "^26.1.0",
+    "tailwindcss": "^4",
+    "tw-animate-css": "^1.3.6",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
   }

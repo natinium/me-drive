@@ -1,3 +1,6 @@
+import { CTA } from "@/components/features/marketing/CTA";
+import { FeatureSection } from "@/components/features/marketing/FeatureSection";
+import { Footer } from "@/components/features/marketing/Footer";
 import { Header } from "@/components/features/marketing/Header";
 import { Hero } from "@/components/features/marketing/Hero";
 
@@ -7,7 +10,10 @@ export default function Home() {
       <Header />
       <main className="flex-1">
         <Hero />
+        <FeatureSection />
+        <CTA />
       </main>
+      <Footer />
     </div>
   );
 }

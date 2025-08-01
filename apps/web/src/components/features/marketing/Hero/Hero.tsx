@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export const Hero = () => {
@@ -9,24 +10,18 @@ export const Hero = () => {
             <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
               Your Personal Cloud Storage
             </h1>
-            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
+            <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
               Securely store, share, and access your files from anywhere.
               Self-hosted and open source.
             </p>
           </div>
-          <div className="space-x-4">
-            <Link
-              className="inline-flex h-9 items-center justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 dark:focus-visible:ring-gray-300"
-              href="#"
-            >
-              Get Started
-            </Link>
-            <Link
-              className="inline-flex h-9 items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300"
-              href="#"
-            >
-              Learn More
-            </Link>
+          <div className="space-x-4 pt-4">
+            <Button asChild>
+              <Link href="#">Get Started</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="#">Learn More</Link>
+            </Button>
           </div>
         </div>
       </div>

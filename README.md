@@ -1,3 +1,24 @@
+```bash
+
+```
+
+````bash
+```bash
+````
+
+````bash
+```bash
+````
+
+````bash
+```bash
+````
+
+````bash
+```bash
+````
+
+```bash
 # MeDrive
 
 MeDrive is a modern, self-hostable cloud file hosting platform inspired by Google Drive. Built as a full-stack monorepo, it features a Next.js frontend, a Nest.js backend, and a documentation site—all managed with Turborepo for scalable development.
@@ -22,15 +43,17 @@ MeDrive is a modern, self-hostable cloud file hosting platform inspired by Googl
 **Monorepo Structure:**
 
 ```
+
 apps/
-  web/      # Next.js frontend
-  server/   # Nest.js backend
-  docs/     # Documentation site
+web/ # Next.js frontend
+server/ # Nest.js backend
+docs/ # Documentation site
 packages/
-  ui/       # Shared React UI components
-  eslint-config/  # Shared ESLint config
-  typescript-config/ # Shared TS config
-```
+ui/ # Shared React UI components
+eslint-config/ # Shared ESLint config
+typescript-config/ # Shared TS config
+
+````
 
 **Tech Stack:**
 
@@ -64,7 +87,7 @@ packages/
 
 ```sh
 yarn install
-```
+````
 
 ### Development
 
@@ -118,15 +141,28 @@ turbo build
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
 
+### Build with Turbo
+
+```bash
+# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+turbo build
+# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
 npx turbo build
 yarn dlx turbo build
 pnpm exec turbo build
+```
+
+```bash
+
+```
+
+```bash
 
 ```
 
 You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
 
-```
+````
 
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
 
@@ -134,9 +170,22 @@ turbo build --filter=docs
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
 
+### Build Docs Only
+
+```bash
+# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+turbo build --filter=docs
+# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
 npx turbo build --filter=docs
 yarn exec turbo build --filter=docs
 pnpm exec turbo build --filter=docs
+````
+
+```bash
+
+```
+
+```bash
 
 ```
 
@@ -144,7 +193,7 @@ pnpm exec turbo build --filter=docs
 
 To develop all apps and packages, run the following command:
 
-```
+````
 
 cd my-turborepo
 
@@ -154,15 +203,28 @@ turbo dev
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
 
+### Develop
+
+```bash
+# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+turbo dev
+# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
 npx turbo dev
 yarn exec turbo dev
 pnpm exec turbo dev
+````
+
+```bash
+
+```
+
+```bash
 
 ```
 
 You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
 
-```
+````
 
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
 
@@ -170,9 +232,22 @@ turbo dev --filter=web
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
 
+### Develop Web Only
+
+```bash
+# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+turbo dev --filter=web
+# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
 npx turbo dev --filter=web
 yarn exec turbo dev --filter=web
 pnpm exec turbo dev --filter=web
+````
+
+```bash
+
+```
+
+```bash
 
 ```
 
@@ -185,7 +260,7 @@ Turborepo can use a technique known as [Remote Caching](https://turborepo.com/do
 
 By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
 
-```
+````
 
 cd my-turborepo
 
@@ -195,9 +270,22 @@ turbo login
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
 
+### Turbo Login
+
+```bash
+# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+turbo login
+# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
 npx turbo login
 yarn exec turbo login
 pnpm exec turbo login
+````
+
+```bash
+
+```
+
+```bash
 
 ```
 
@@ -205,7 +293,7 @@ This will authenticate the Turborepo CLI with your [Vercel account](https://verc
 
 Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
 
-```
+````
 
 # With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
 
@@ -213,9 +301,16 @@ turbo link
 
 # Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
 
+### Turbo Link
+
+```bash
+# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+turbo link
+# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
 npx turbo link
 yarn exec turbo link
 pnpm exec turbo link
+````
 
 ```
 

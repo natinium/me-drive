@@ -1,8 +1,12 @@
-import { expect, test } from "vitest";
 import { render, screen } from "@testing-library/react";
-import Page from "../app/page";
+import Home from "./page";
+import { describe, it, expect } from "vitest";
 
-test("Page", () => {
-  render(<Page />);
-  expect(screen.getByRole("heading", { level: 1, name: "Home" })).toBeDefined();
+describe("Home Page", () => {
+  it("renders the main heading of the hero section", () => {
+    render(<Home />);
+    expect(
+      screen.getByRole("heading", { name: /Your Personal Cloud Storage/i }),
+    ).toBeInTheDocument();
+  });
 });

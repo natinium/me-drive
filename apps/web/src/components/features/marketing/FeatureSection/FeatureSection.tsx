@@ -3,7 +3,7 @@ import { Cloud, Lock, Share2 } from "lucide-react";
 export const FeatureSection = () => {
   return (
     <section className="w-full py-12 md:py-24 lg:py-32">
-      <div className="container px-4 md:px-6">
+      <div className="mx-auto max-w-5xl px-4">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
             <div className="inline-block rounded-lg bg-gray-100 px-3 py-1 text-sm dark:bg-gray-800">
@@ -18,9 +18,9 @@ export const FeatureSection = () => {
             </p>
           </div>
         </div>
-        <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-3 lg:gap-12">
-          <div className="grid gap-1">
-            <div className="flex items-center gap-2">
+        <div className="flex flex-wrap justify-center gap-6 py-12 lg:gap-12">
+          <div className="w-full lg:w-1/3 text-center flex flex-col items-center gap-4">
+            <div className="flex items-center justify-center gap-2">
               <Cloud className="h-8 w-8 text-gray-500 dark:text-gray-400" />
               <h3 className="text-xl font-bold">File Storage</h3>
             </div>
@@ -29,8 +29,8 @@ export const FeatureSection = () => {
               Access them from any device, anywhere.
             </p>
           </div>
-          <div className="grid gap-1">
-            <div className="flex items-center gap-2">
+          <div className="w-full lg:w-1/3 text-center flex flex-col items-center gap-4">
+            <div className="flex items-center justify-center gap-2">
               <Share2 className="h-8 w-8 text-gray-500 dark:text-gray-400" />
               <h3 className="text-xl font-bold">Easy Sharing</h3>
             </div>
@@ -39,8 +39,8 @@ export const FeatureSection = () => {
               collaborate with ease.
             </p>
           </div>
-          <div className="grid gap-1">
-            <div className="flex items-center gap-2">
+          <div className="w-full lg:w-1/3 text-center flex flex-col items-center gap-4">
+            <div className="flex items-center justify-center gap-2">
               <Lock className="h-8 w-8 text-gray-500 dark:text-gray-400" />
               <h3 className="text-xl font-bold">Top-tier Security</h3>
             </div>

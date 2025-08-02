@@ -88,7 +88,7 @@ apps/web/
 │   │   │   │   └── page.tsx
 │   │   │   ├── signup/      # Signup page
 │   │   │   │   └── page.tsx
-│   │   │   └── layout.tsx   # Auth layout wrapper
+│   │   │   ���── layout.tsx   # Auth layout wrapper
 │   │   ├── (main)/          # Main application routes group
 │   │   │   ├── dashboard/   # Dashboard page
 │   │   │   │   └── page.tsx
@@ -149,7 +149,6 @@ apps/server/
 ├── tsconfig.build.json     # Build-specific TypeScript config
 ├── jest.config.js          # Jest testing configuration
 ├── package.json            # Dependencies and scripts
-
 └── README.md               # Server documentation
 ```
 
@@ -225,7 +224,15 @@ The project uses GitHub Actions for Continuous Integration and Continuous Delive
     ```
     Replace `[app-name]` with the name of the app (e.g., `web`, `server`) and `[package-name]` with the name of the package.
 
-## 9. Code Examples
+## 9. UI Development Documentation
+
+The UI development documentation is located in the `docs/ui-docs/` directory. It provides a comprehensive guide to all the UI components used in the project.
+
+The main entry point for the UI documentation is `docs/ui-docs/ui.md`. This file contains a list of all available components and links to their detailed documentation. Each component has its own markdown file with installation and usage instructions.
+
+When adding a new component, please ensure you create a new markdown file for it and link it in `ui.md`.
+
+## 10. Code Examples
 
 ### Example: Creating a New Component (Web)
 

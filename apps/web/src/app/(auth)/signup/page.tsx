@@ -1,114 +1,138 @@
-import { Metadata } from "next";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Icons } from "@/components/icons";
-
-export const metadata: Metadata = {
-  title: "Sign up",
-  description: "Create your MeDrive account",
-};
+import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
 
 export default function SignupPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <Link
-        href="/"
-        className={cn(
-          buttonVariants({ variant: "ghost" }),
-          "absolute left-4 top-4 md:left-8 md:top-8",
-        )}
-      >
-        <>
-          <Icons.chevronLeft className="mr-2 h-4 w-4" />
-          Back
-        </>
-      </Link>
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-        <div className="flex flex-col space-y-2 text-center">
-          <Icons.logo className="mx-auto h-6 w-6" />
-          <h1 className="text-2xl font-semibold tracking-tight">
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">
             Create an account
-          </h1>
-          <p className="text-sm text-muted-foreground">
+          </CardTitle>
+          <CardDescription>
             Enter your details below to create your account
-          </p>
-        </div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Sign up</CardTitle>
-            <CardDescription>
-              Fill in the details below to create your account
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="name"
-                  placeholder="John Doe"
                   type="text"
-                  autoCapitalize="words"
-                  autoComplete="name"
+                  placeholder="John Doe"
+                  className="pl-10"
+                  required
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="email"
-                  placeholder="name@example.com"
                   type="email"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  autoCorrect="off"
+                  placeholder="m@example.com"
+                  className="pl-10"
+                  required
                 />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Create a password"
-                  type="password"
-                  autoCapitalize="none"
-                  autoComplete="new-password"
+                  className="pl-10 pr-10"
+                  required
                 />
+                <button
+                  type="button"
+                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm your password"
-                  type="password"
-                  autoCapitalize="none"
-                  autoComplete="new-password"
+                  className="pl-10 pr-10"
+                  required
                 />
+                <button
+                  type="button"
+                  className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
               </div>
             </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <button className={cn(buttonVariants())}>Create Account</button>
-            <div className="text-center text-sm">
-              <Link
-                href="/login"
-                className="underline underline-offset-4 hover:text-primary"
-              >
-                Already have an account? Sign in
-              </Link>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="terms"
+                className="h-4 w-4 rounded border-gray-300"
+                required
+              />
+              <Label htmlFor="terms" className="text-sm font-normal">
+                I agree to the{" "}
+                <Link href="/terms" className="text-primary hover:underline">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" className="text-primary hover:underline">
+                  Privacy Policy
+                </Link>
+              </Label>
             </div>
-          </CardFooter>
-        </Card>
-      </div>
+            <Button type="submit" className="w-full">
+              Create Account
+            </Button>
+          </form>
+          <div className="mt-4 text-center text-sm">
+            Already have an account?{" "}
+            <Link href="/login" className="text-primary hover:underline">
+              Sign in
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

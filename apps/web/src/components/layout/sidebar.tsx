@@ -1,76 +1,152 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Home, Folder, Plus, Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { useDriveStore } from "@/stores/drive-store";
+import {
+  Home,
+  Folder,
+  Plus,
+  Upload,
+  FolderPlus,
+  User,
+  Settings,
+  LogOut,
+  ChevronUp,
+  ChevronDown,
+} from "lucide-react";
 
-export const Sidebar = () => {
+const menuItems = [
+  { href: "/dashboard", label: "Dashboard", icon: Home },
+  { href: "/drive", label: "My Drive", icon: Folder },
+];
+
+export const AppSidebar = () => {
+  const pathname = usePathname();
+  const { openUploadModal, openCreateFolderModal } = useDriveStore();
+
   return (
-    <aside className="w-64 bg-gray-100 p-4 border-r hidden md:flex flex-col">
-      {/* TODO: Implement application logo/name */}
-      <div className="mb-6 text-2xl font-bold">FileManager</div>
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link href="/">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <Folder className="size-4" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">MeDrive</span>
+                  <span className="truncate text-xs">Cloud Storage</span>
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
 
-      {/* TODO: Implement "New" dropdown button */}
-      <div className="mb-6">
-        <Button className="w-full">
-          {" "}
-          <Plus className="mr-2 h-4 w-4" /> New
-        </Button>
-        {/* Dropdown menu for upload/create folder */}
-      </div>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Actions</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <SidebarMenuButton className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100">
+                      <Plus className="h-4 w-4" />
+                      <span>New</span>
+                    </SidebarMenuButton>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    <DropdownMenuItem onClick={() => openUploadModal()}>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload File
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openCreateFolderModal()}>
+                      <FolderPlus className="mr-2 h-4 w-4" />
+                      New Folder
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-      <nav className="flex-1">
-        <ul className="space-y-2">
-          <li>
-            <Link
-              href="/dashboard"
-              className="flex items-center p-2 text-gray-700 hover:bg-gray-200 rounded-md"
-            >
-              <Home className="mr-2 h-5 w-5" />
-              Dashboard
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/drive"
-              className="flex items-center p-2 text-gray-700 hover:bg-gray-200 rounded-md"
-            >
-              <Folder className="mr-2 h-5 w-5" />
-              My Drive
-            </Link>
-          </li>
-        </ul>
-      </nav>
+        <SidebarGroup>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton asChild isActive={pathname === item.href}>
+                    <Link href={item.href}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
 
-      {/* TODO: Implement User Profile Section */}
-      <div className="mt-auto p-4 border-t">
-        <div className="flex items-center">
-          {/* User Avatar */}
-          <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
-            JD
-          </div>
-          <div className="ml-3">
-            <p className="font-semibold">John Doe</p>
-            <p className="text-sm text-gray-500">john@example.com</p>
-          </div>
-        </div>
-        {/* Theme Toggle and Sign Up Button */}
-      </div>
-    </aside>
-  );
-};
-
-export const MobileSidebar = () => {
-  return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
-          <Menu className="h-6 w-6" />
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="left" className="p-4 w-64">
-        <Sidebar />
-      </SheetContent>
-    </Sheet>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton>
+                  <User className="h-4 w-4" />
+                  <span>John Doe</span>
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link href="/profile">
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
   );
 };

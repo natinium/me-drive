@@ -40,4 +40,4 @@ yarn-error.log*
 *.pem
 
 # prompt files
-docs/ui-docs/
+# docs/ui-docs/

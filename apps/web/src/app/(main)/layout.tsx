@@ -1,19 +1,30 @@
 import { ReactNode } from "react";
-import { Sidebar } from "@/components/layout/sidebar";
+import { cookies } from "next/headers";
+import { AppSidebar } from "@/components/layout/sidebar";
 import { Navbar } from "@/components/layout/navbar";
+import { GlobalModals } from "@/components/layout/global-modals";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 interface MainLayoutProps {
   children: ReactNode;
 }
 
-export default function MainLayout({ children }: MainLayoutProps) {
+export default async function MainLayout({ children }: MainLayoutProps) {
+  const cookieStore = await cookies();
+  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
+
   return (
-    <div className="flex h-screen">
-      <Sidebar />
-      <div className="flex flex-col flex-1">
+    <SidebarProvider defaultOpen={defaultOpen}>
+      <AppSidebar />
+      <main className="flex-1 flex flex-col">
         <Navbar />
-        <main className="flex-1 p-6 overflow-y-auto">{children}</main>
-      </div>
-    </div>
+        <div className="flex-1 overflow-y-auto">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            {children}
+          </div>
+        </div>
+      </main>
+      <GlobalModals />
+    </SidebarProvider>
   );
 }

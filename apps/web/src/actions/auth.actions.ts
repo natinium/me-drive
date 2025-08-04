@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import { signOut } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import { register } from "@/lib/api";
 
 export async function signOutAction() {
@@ -35,13 +35,31 @@ export async function signUpAction(prevState: any, formData: FormData) {
     };
   }
 
+  const { name, email, password } = validatedFields.data;
+
   try {
-    await register(validatedFields.data);
+    await register({ name, email, password });
   } catch (error: any) {
     return {
       message: error.message || "An unexpected error occurred.",
     };
   }
 
-  redirect("/login?registered=true");
+  // Automatically sign in the user after successful registration
+  try {
+    await signIn("credentials", {
+      email,
+      password,
+      redirectTo: "/dashboard",
+    });
+  } catch (error) {
+    // The signIn function throws an error on redirection, which is expected.
+    // We can safely ignore it here, as the redirection will happen.
+    // For other errors, we might want to log them.
+    if ((error as any).type !== "CredentialsSignin") {
+      console.error("Failed to sign in after registration:", error);
+      // Redirect to login even if auto-signin fails
+      redirect("/login?registered=true");
+    }
+  }
 }

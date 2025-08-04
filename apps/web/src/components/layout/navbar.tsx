@@ -39,6 +39,7 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import { signOutAction } from "@/actions/auth.actions";
 
 export const Navbar = () => {
   const { theme, setTheme } = useTheme();
@@ -162,10 +163,14 @@ export const Navbar = () => {
               Help & Support
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer text-destructive">
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign out
-            </DropdownMenuItem>
+            <form action={signOutAction}>
+              <button type="submit" className="w-full">
+                <DropdownMenuItem className="cursor-pointer text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign out
+                </DropdownMenuItem>
+              </button>
+            </form>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

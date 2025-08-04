@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,12 +9,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { Mail, Lock } from "lucide-react";
+import { signIn } from "@/auth";
 
 export function LoginForm() {
-  const [showPassword, setShowPassword] = useState(false);
-
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-1">
@@ -26,13 +22,20 @@ export function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="space-y-4">
+        <form
+          className="space-y-4"
+          action={async (formData) => {
+            "use server";
+            await signIn("credentials", formData);
+          }}
+        >
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 id="email"
+                name="email"
                 type="email"
                 placeholder="m@example.com"
                 className="pl-10"
@@ -46,22 +49,12 @@ export function LoginForm() {
               <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 id="password"
-                type={showPassword ? "text" : "password"}
+                name="password"
+                type="password"
                 placeholder="Enter your password"
-                className="pl-10 pr-10"
+                className="pl-10"
                 required
               />
-              <button
-                type="button"
-                className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </button>
             </div>
           </div>
           <div className="flex items-center justify-between">

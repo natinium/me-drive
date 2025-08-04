@@ -40,10 +40,12 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { signOutAction } from "@/actions/auth.actions";
+import { useSession } from "next-auth/react";
 
 export const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const [searchFocused, setSearchFocused] = useState(false);
+  const { data: session } = useSession();
 
   return (
     <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 shadow-sm transition-all duration-200">
@@ -120,9 +122,12 @@ export const Navbar = () => {
               className="h-9 w-9 p-0 rounded-full hover:bg-muted/50"
             >
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/api/placeholder/32/32" alt="@user" />
+                <AvatarImage
+                  src={session?.user?.image ?? ""}
+                  alt={session?.user?.name ?? ""}
+                />
                 <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">
-                  JD
+                  {session?.user?.name?.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
             </Button>
@@ -131,15 +136,18 @@ export const Navbar = () => {
             <DropdownMenuLabel>
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src="/api/placeholder/40/40" alt="@user" />
+                  <AvatarImage
+                    src={session?.user?.image ?? ""}
+                    alt={session?.user?.name ?? ""}
+                  />
                   <AvatarFallback className="bg-primary/10 text-primary">
-                    JD
+                    {session?.user?.name?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-semibold">John Doe</p>
+                  <p className="text-sm font-semibold">{session?.user?.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    john@example.com
+                    {session?.user?.email}
                   </p>
                 </div>
               </div>

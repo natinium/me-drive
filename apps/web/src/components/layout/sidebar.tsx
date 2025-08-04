@@ -36,6 +36,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { signOutAction } from "@/actions/auth.actions";
+import { useSession } from "next-auth/react";
 
 const menuItems = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -45,6 +46,7 @@ const menuItems = [
 export const AppSidebar = () => {
   const pathname = usePathname();
   const { openUploadModal, openCreateFolderModal } = useDriveStore();
+  const { data: session } = useSession();
 
   return (
     <Sidebar collapsible="icon">
@@ -121,7 +123,7 @@ export const AppSidebar = () => {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
                   <User className="h-4 w-4" />
-                  <span>John Doe</span>
+                  <span>{session?.user?.name}</span>
                   <ChevronUp className="ml-auto h-4 w-4" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>

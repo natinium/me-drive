@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { getUserByEmail } from "@/lib/api";
 
 // Extend NextAuth types
 declare module "next-auth" {
@@ -26,23 +27,6 @@ declare module "next-auth/jwt" {
   }
 }
 
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  password: string;
-}
-
-// In-memory user storage for development
-const users: User[] = [
-  {
-    id: "1",
-    email: "user@example.com",
-    name: "John Doe",
-    password: "password123",
-  },
-];
-
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
@@ -56,7 +40,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        const user = users.find((u) => u.email === credentials.email);
+        const user = await getUserByEmail(credentials.email as string);
 
         if (!user || user.password !== credentials.password) {
           return null;

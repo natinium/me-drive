@@ -35,6 +35,7 @@ import {
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 const menuItems = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -138,10 +139,19 @@ export const AppSidebar = () => {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign out
-                </DropdownMenuItem>
+                <form
+                  action={async () => {
+                    "use server";
+                    await signOut();
+                  }}
+                >
+                  <button type="submit" className="w-full">
+                    <DropdownMenuItem>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign out
+                    </DropdownMenuItem>
+                  </button>
+                </form>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

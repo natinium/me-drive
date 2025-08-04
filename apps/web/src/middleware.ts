@@ -8,8 +8,12 @@ export async function middleware(request: NextRequest) {
     secret: process.env.AUTH_SECRET,
   });
 
-  // Protect dashboard routes
-  if (request.nextUrl.pathname.startsWith("/dashboard")) {
+  const protectedPaths = ["/dashboard", "/drive", "/profile", "/settings"];
+
+  // Protect routes
+  if (
+    protectedPaths.some((path) => request.nextUrl.pathname.startsWith(path))
+  ) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
@@ -29,5 +33,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register"],
+  matcher: [
+    "/dashboard/:path*",
+    "/drive/:path*",
+    "/profile/:path*",
+    "/settings/:path*",
+    "/login",
+    "/register",
+  ],
 };

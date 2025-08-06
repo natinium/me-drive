@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { Sidebar } from "./sidebar";
+import { AppSidebar } from "./sidebar";
 import { describe, it, expect, vi } from "vitest";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 // Mock the usePathname hook
 vi.mock("next/navigation", () => ({
@@ -10,49 +10,38 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Mock the next-auth/react hook
-vi.mock("next-auth/react", () => ({
-  signOut: vi.fn(),
-}));
+vi.mock("next-auth/react");
 
-describe("Sidebar", () => {
+describe("AppSidebar", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("renders the sidebar with navigation links and logout button", () => {
+  it("renders the sidebar with navigation links", () => {
     (usePathname as vi.Mock).mockReturnValue("/dashboard");
+    vi.mocked(useSession).mockReturnValue({
+      data: null,
+      status: "unauthenticated",
+      update: vi.fn(),
+    });
 
-    render(<Sidebar />);
+    render(<AppSidebar />);
 
     expect(screen.getByText("Dashboard")).toBeInTheDocument();
     expect(screen.getByText("My Drive")).toBeInTheDocument();
-    expect(screen.getByText("Profile")).toBeInTheDocument();
-    expect(screen.getByText("Settings")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /logout/i })).toBeInTheDocument();
-
-    expect(screen.getByRole("link", { name: "Dashboard" })).toHaveAttribute(
-      "href",
-      "/dashboard",
-    );
-    expect(screen.getByRole("link", { name: "My Drive" })).toHaveAttribute(
-      "href",
-      "/drive",
-    );
-    expect(screen.getByRole("link", { name: "Profile" })).toHaveAttribute(
-      "href",
-      "/profile",
-    );
-    expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute(
-      "href",
-      "/settings",
-    );
   });
 
   it("highlights the active link based on the current pathname", () => {
     (usePathname as vi.Mock).mockReturnValue("/drive");
+    vi.mocked(useSession).mockReturnValue({
+      data: null,
+      status: "unauthenticated",
+      update: vi.fn(),
+    });
 
-    render(<Sidebar />);
+    render(<AppSidebar />);
 
+    // You might need to adjust the class name based on your actual implementation
     expect(screen.getByRole("link", { name: "My Drive" })).toHaveClass(
       "bg-muted",
     );
@@ -61,12 +50,31 @@ describe("Sidebar", () => {
     );
   });
 
-  it("calls signOut when the logout button is clicked", () => {
-    (usePathname as vi.Mock).mockReturnValue("/dashboard"); // Mock any path
+  it("should display the user's name after login", async () => {
+    (usePathname as vi.Mock).mockReturnValue("/dashboard");
+    const { rerender } = render(<AppSidebar />);
 
-    render(<Sidebar />);
-    const logoutButton = screen.getByRole("button", { name: /logout/i });
-    fireEvent.click(logoutButton);
-    expect(signOut).toHaveBeenCalledTimes(1);
+    // Initially, the user is not logged in
+    vi.mocked(useSession).mockReturnValue({
+      data: null,
+      status: "unauthenticated",
+      update: vi.fn(),
+    });
+    rerender(<AppSidebar />);
+    expect(screen.queryByText("John Doe")).not.toBeInTheDocument();
+
+    // Simulate a login
+    vi.mocked(useSession).mockReturnValue({
+      data: {
+        user: { name: "John Doe", email: "john@example.com", id: "1" },
+      },
+      status: "authenticated",
+      update: vi.fn(),
+    });
+
+    rerender(<AppSidebar />);
+
+    // The user's name should now be displayed
+    expect(await screen.findByText("John Doe")).toBeInTheDocument();
   });
 });

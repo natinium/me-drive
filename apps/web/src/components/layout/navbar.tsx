@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -40,12 +40,14 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { signOutAction } from "@/actions/auth.actions";
-import { useSession } from "next-auth/react";
+import { useSessionContext } from "@/components/providers/session-provider";
+import { useRouter } from "next/navigation";
 
 export const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const [searchFocused, setSearchFocused] = useState(false);
-  const { data: session } = useSession();
+  const { session } = useSessionContext();
+  const router = useRouter();
 
   return (
     <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 shadow-sm transition-all duration-200">

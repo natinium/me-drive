@@ -41,3 +41,10 @@ yarn-error.log*
 
 # prompt files
 # docs/ui-docs/
+
+# IDE
+.vscode/
+.idea/
+
+# Kiro
+.kiro/

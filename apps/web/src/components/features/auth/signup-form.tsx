@@ -26,7 +26,7 @@ function SubmitButton() {
 }
 
 export function SignupForm() {
-  const initialState = { message: null, errors: {} };
+  const initialState = { message: "", errors: {} };
   const [state, dispatch] = useFormState(signUpAction, initialState);
 
   return (
@@ -39,7 +39,7 @@ export function SignupForm() {
       </CardHeader>
       <CardContent>
         <form action={dispatch} className="space-y-4">
-          {state.message && !state.errors && (
+          {state?.message && !state.errors && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Error</AlertTitle>
@@ -59,7 +59,7 @@ export function SignupForm() {
                 required
               />
             </div>
-            {state.errors?.name && (
+            {state?.errors?.name && (
               <p className="text-sm text-destructive">{state.errors.name[0]}</p>
             )}
           </div>
@@ -76,7 +76,7 @@ export function SignupForm() {
                 required
               />
             </div>
-            {state.errors?.email && (
+            {state?.errors?.email && (
               <p className="text-sm text-destructive">
                 {state.errors.email[0]}
               </p>
@@ -95,7 +95,7 @@ export function SignupForm() {
                 required
               />
             </div>
-            {state.errors?.password && (
+            {state?.errors?.password && (
               <p className="text-sm text-destructive">
                 {state.errors.password[0]}
               </p>
@@ -114,7 +114,7 @@ export function SignupForm() {
                 required
               />
             </div>
-            {state.errors?.confirmPassword && (
+            {state?.errors?.confirmPassword && (
               <p className="text-sm text-destructive">
                 {state.errors.confirmPassword[0]}
               </p>

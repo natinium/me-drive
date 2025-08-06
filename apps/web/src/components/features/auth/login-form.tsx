@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,9 +12,36 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock } from "lucide-react";
-import { signIn } from "@/auth";
+import { useFormState, useFormStatus } from "react-dom";
+import { useSession, getSession } from "next-auth/react";
+import { useSessionContext } from "@/components/providers/session-provider";
+import { authenticate } from "@/actions/auth.actions";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function LoginForm() {
+  const [state, dispatch] = useFormState(authenticate, undefined);
+  const router = useRouter();
+  const { update } = useSession();
+  const { setSession } = useSessionContext();
+
+  useEffect(() => {
+    if (state?.success) {
+      toast.success("Logged in successfully");
+      update().then(async () => {
+        // Fetch the new session and update the custom context
+        const newSession = await getSession();
+        setSession(newSession);
+        router.push("/dashboard");
+        router.refresh();
+      });
+    }
+    if (state?.error) {
+      toast.error(state.error);
+    }
+  }, [state, router, update, setSession]);
+
   return (
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-1">
@@ -22,13 +51,7 @@ export function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form
-          className="space-y-4"
-          action={async (formData) => {
-            "use server";
-            await signIn("credentials", formData);
-          }}
-        >
+        <form className="space-y-4" action={dispatch}>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
@@ -75,9 +98,7 @@ export function LoginForm() {
               Forgot password?
             </Link>
           </div>
-          <Button type="submit" className="w-full">
-            Sign In
-          </Button>
+          <LoginButton />
         </form>
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{" "}
@@ -87,5 +108,15 @@ export function LoginForm() {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function LoginButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button type="submit" className="w-full" aria-disabled={pending}>
+      {pending ? "Submitting..." : "Sign In"}
+    </Button>
   );
 }

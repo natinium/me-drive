@@ -9,6 +9,18 @@ export async function signOutAction() {
   await signOut({ redirectTo: "/login" });
 }
 
+export async function authenticate(prevState: any, formData: FormData) {
+  try {
+    await signIn("credentials", formData);
+    return { success: true };
+  } catch (error) {
+    if ((error as Error).message.includes("CredentialsSignin")) {
+      return { error: "Invalid credentials" };
+    }
+    throw error;
+  }
+}
+
 const signUpSchema = z
   .object({
     name: z.string().min(2, { message: "Name must be at least 2 characters." }),

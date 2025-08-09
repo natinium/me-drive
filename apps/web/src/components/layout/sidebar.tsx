@@ -36,7 +36,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { signOutAction } from "@/actions/auth.actions";
-import { useSessionContext } from "@/components/providers/session-provider";
+import { useSession } from "next-auth/react";
 
 const menuItems = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -46,7 +46,7 @@ const menuItems = [
 export const AppSidebar = () => {
   const pathname = usePathname();
   const { openUploadModal, openCreateFolderModal } = useDriveStore();
-  const { session } = useSessionContext();
+  const { data: session } = useSession();
   // No status, so assume session is ready (if you want loading state, you can add it to your context)
 
   // Remove status/loading check, always render sidebar

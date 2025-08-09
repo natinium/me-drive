@@ -40,13 +40,13 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { signOutAction } from "@/actions/auth.actions";
-import { useSessionContext } from "@/components/providers/session-provider";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const [searchFocused, setSearchFocused] = useState(false);
-  const { session } = useSessionContext();
+  const { data: session } = useSession();
   const router = useRouter();
 
   return (
@@ -117,72 +117,76 @@ export const Navbar = () => {
           <span className="sr-only">Notifications</span>
         </Button>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="h-9 w-9 p-0 rounded-full hover:bg-muted/50"
-            >
-              <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src={session?.user?.image ?? ""}
-                  alt={session?.user?.name ?? ""}
-                />
-                <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">
-                  {session?.user?.name?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-64">
-            <DropdownMenuLabel>
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
+        {session && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild data-testid="user-menu-trigger">
+              <Button
+                variant="ghost"
+                className="h-9 w-9 p-0 rounded-full hover:bg-muted/50"
+              >
+                <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src={session?.user?.image ?? ""}
-                    alt={session?.user?.name ?? ""}
+                    src={session.user?.image ?? ""}
+                    alt={session.user?.name ?? ""}
                   />
-                  <AvatarFallback className="bg-primary/10 text-primary">
-                    {session?.user?.name?.charAt(0).toUpperCase()}
+                  <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">
+                    {session.user?.name?.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-semibold">{session?.user?.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {session?.user?.email}
-                  </p>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuLabel>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage
+                      src={session.user?.image ?? ""}
+                      alt={session.user?.name ?? ""}
+                    />
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      {session.user?.name?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-semibold">
+                      {session.user?.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {session.user?.email}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              <User className="mr-2 h-4 w-4" />
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              <Activity className="mr-2 h-4 w-4" />
-              Activity
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              <HelpCircle className="mr-2 h-4 w-4" />
-              Help & Support
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <form action={signOutAction}>
-              <button type="submit" className="w-full">
-                <DropdownMenuItem className="cursor-pointer text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign out
-                </DropdownMenuItem>
-              </button>
-            </form>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer">
+                <User className="mr-2 h-4 w-4" />
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <Activity className="mr-2 h-4 w-4" />
+                Activity
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer">
+                <HelpCircle className="mr-2 h-4 w-4" />
+                Help & Support
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <form action={signOutAction}>
+                <button type="submit" className="w-full">
+                  <DropdownMenuItem className="cursor-pointer text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign out
+                  </DropdownMenuItem>
+                </button>
+              </form>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </header>
   );

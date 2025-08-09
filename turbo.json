@@ -7,7 +7,7 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
-      "env": ["AUTH_SECRET"]
+      "env": ["AUTH_SECRET", "PORT"]
     },
     "lint": {
       "inputs": ["$TURBO_DEFAULT$", ".env*", "$PORT"]
@@ -18,18 +18,18 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": ["AUTH_SECRET"]
+      "env": ["AUTH_SECRET", "PORT"]
     },
     "test": {
       "dependsOn": ["^build"],
       "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.tsx", "test/**/*.ts"],
-      "env": ["AUTH_SECRET"]
+      "env": ["AUTH_SECRET", "PORT"]
     },
     "e2e": {
       "dependsOn": ["^build"],
       "inputs": ["tests/**/*.ts"],
       "outputs": ["playwright-report/**", "test-results/**"],
-      "passThroughEnv": ["PLAYWRIGHT_*", "AUTH_SECRET"]
+      "passThroughEnv": ["PLAYWRIGHT_*", "AUTH_SECRET", "PORT"]
     }
   }
 }

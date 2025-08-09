@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { redirect } from "next/navigation";
 import { signIn, signOut } from "@/auth";
-import { register } from "@/lib/api";
+import { registerUser } from "@/lib/api";
 
 export async function signOutAction() {
   await signOut({ redirectTo: "/login" });
@@ -50,7 +50,7 @@ export async function signUpAction(prevState: any, formData: FormData) {
   const { name, email, password } = validatedFields.data;
 
   try {
-    await register({ name, email, password });
+    await registerUser({ name, email, password });
   } catch (error: any) {
     return {
       message: error.message || "An unexpected error occurred.",

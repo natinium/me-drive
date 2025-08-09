@@ -40,7 +40,7 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <div className="scroll-smooth">{children}</div>
             <Toaster />
           </ThemeProvider>
         </Providers>

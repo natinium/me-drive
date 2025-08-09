@@ -1,10 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Cloud, Lock, Share2 } from "lucide-react";
+import { Cloud, Lock, Share2, Folder, Users, HardDrive } from "lucide-react";
+import Link from "next/link";
 
 export const FeatureSection = () => {
   return (
-    <section className="w-full py-12 md:py-24 lg:py-32 flex items-center justify-center">
+    <section
+      id="features"
+      className="w-full py-12 md:py-24 lg:py-32 flex items-center justify-center"
+    >
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
@@ -31,6 +35,16 @@ export const FeatureSection = () => {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-center gap-2">
+              <Folder className="h-8 w-8 text-muted-foreground" />
+              <CardTitle>Folder Management</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center text-sm text-muted-foreground">
+              Organize your files with nested folders. Create, rename, and
+              manage your folder structure with ease.
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-center gap-2">
               <Share2 className="h-8 w-8 text-muted-foreground" />
               <CardTitle>Easy Sharing</CardTitle>
             </CardHeader>
@@ -49,6 +63,47 @@ export const FeatureSection = () => {
               is our priority.
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-center gap-2">
+              <HardDrive className="h-8 w-8 text-muted-foreground" />
+              <CardTitle>Self-Hosted</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center text-sm text-muted-foreground">
+              Keep full control of your data by hosting MeDrive on your own
+              servers. No third-party access to your files.
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-center gap-2">
+              <Users className="h-8 w-8 text-muted-foreground" />
+              <CardTitle>Team Collaboration</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center text-sm text-muted-foreground">
+              Work together with your team. Share folders, assign permissions,
+              and collaborate in real-time.
+            </CardContent>
+          </Card>
+        </div>
+        <div className="text-center mt-8">
+          <Link
+            href="/features"
+            className="inline-flex items-center text-primary hover:underline"
+          >
+            View all features
+            <svg
+              className="ml-1 h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </Link>
         </div>
       </div>
     </section>

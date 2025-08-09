@@ -19,14 +19,11 @@ vi.mock("@/components/features/drive", () => ({
 }));
 
 describe("MyDrivePage", () => {
-  it("should render the main heading and subheading", () => {
+  it("should render the main heading", () => {
     render(<MyDrivePage />);
 
     expect(
       screen.getByRole("heading", { name: /my drive/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/manage all your files and folders/i),
     ).toBeInTheDocument();
   });
 

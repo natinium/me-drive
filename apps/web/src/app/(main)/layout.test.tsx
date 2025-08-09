@@ -2,81 +2,50 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import "@testing-library/jest-dom";
+import MainLayout from "./layout";
 
-// Mock the entire layout module since it's a Server Component
-vi.mock("./layout", () => ({
+// Mock child components to isolate the layout
+vi.mock("@/components/layout/sidebar", () => ({
+  AppSidebar: () => <div data-testid="app-sidebar">Sidebar</div>,
+}));
+
+vi.mock("@/components/layout/navbar", () => ({
+  Navbar: () => <div data-testid="navbar">Navbar</div>,
+}));
+
+vi.mock("@/components/layout/global-modals", () => ({
+  GlobalModals: () => <div data-testid="global-modals">Global Modals</div>,
+}));
+
+// Mock the SessionProvider as the layout now depends on it.
+vi.mock("@/components/providers/session-provider", () => ({
   default: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="main-layout">
-      <div data-testid="app-sidebar">Sidebar</div>
-      <div data-testid="navbar">Navbar</div>
-      <div>{children}</div>
-      <div data-testid="global-modals">Global Modals</div>
-      <div data-testid="sidebar-trigger">Trigger</div>
-    </div>
+    <div data-testid="session-provider">{children}</div>
   ),
 }));
 
-import MainLayout from "./layout";
+// Mock next-auth to handle getServerSession call
+vi.mock("next-auth", async () => {
+  const originalModule = await vi.importActual("next-auth");
+  return {
+    ...originalModule,
+    getServerSession: vi.fn(() => Promise.resolve(null)), // Default to no session
+  };
+});
 
-describe("MainLayout", () => {
-  it("should render the sidebar", () => {
-    render(
-      <MainLayout>
-        <div>Test Content</div>
-      </MainLayout>,
-    );
+describe("MainLayout Server Component", () => {
+  it("should render all the main structural components", async () => {
+    const testContent = "Test Child Content";
+    // Since it's an async component, we need to handle the promise
+    const LayoutComponent = await MainLayout({
+      children: <div>{testContent}</div>,
+    });
+    render(LayoutComponent);
 
     expect(screen.getByTestId("app-sidebar")).toBeInTheDocument();
-  });
-
-  it("should render the navbar", () => {
-    render(
-      <MainLayout>
-        <div>Test Content</div>
-      </MainLayout>,
-    );
-
     expect(screen.getByTestId("navbar")).toBeInTheDocument();
-  });
-
-  it("should render the global modals", () => {
-    render(
-      <MainLayout>
-        <div>Test Content</div>
-      </MainLayout>,
-    );
-
     expect(screen.getByTestId("global-modals")).toBeInTheDocument();
-  });
-
-  it("should render the sidebar trigger", () => {
-    render(
-      <MainLayout>
-        <div>Test Content</div>
-      </MainLayout>,
-    );
-
-    expect(screen.getByTestId("sidebar-trigger")).toBeInTheDocument();
-  });
-
-  it("should render children content", () => {
-    const testContent = "Test Child Content";
-    render(
-      <MainLayout>
-        <div>{testContent}</div>
-      </MainLayout>,
-    );
-
+    expect(screen.getByTestId("session-provider")).toBeInTheDocument();
     expect(screen.getByText(testContent)).toBeInTheDocument();
-  });
-
-  it("should have proper layout structure", () => {
-    render(
-      <MainLayout>
-        <div>Test Content</div>
-      </MainLayout>,
-    );
-
-    expect(screen.getByTestId("main-layout")).toBeInTheDocument();
   });
 });

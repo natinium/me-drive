@@ -1,0 +1,65 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  password      String
+  avatar        String?
+  storageUsed   BigInt    @default(0)
+  storageLimit  BigInt    @default(1073741824) // 1 GB
+  files         File[]
+  folders       Folder[]
+  shares        Share[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model File {
+  id            String    @id @default(cuid())
+  name          String
+  type          String
+  size          BigInt
+  url           String
+  thumbnailUrl  String?
+  folder        Folder?   @relation(fields: [folderId], references: [id])
+  folderId      String?
+  owner         User      @relation(fields: [ownerId], references: [id])
+  ownerId       String
+  isShared      Boolean   @default(false)
+  shares        Share[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Folder {
+  id            String    @id @default(cuid())
+  name          String
+  parentId      String?
+  parent        Folder?   @relation("FolderChildren", fields: [parentId], references: [id])
+  children      Folder[]  @relation("FolderChildren")
+  files         File[]
+  owner         User      @relation(fields: [ownerId], references: [id])
+  ownerId       String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Share {
+  id           String    @id @default(cuid())
+  file         File      @relation(fields: [fileId], references: [id])
+  fileId       String
+  sharedWith   User?     @relation(fields: [sharedWithId], references: [id])
+  sharedWithId String?
+  permission   String
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}

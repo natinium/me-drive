@@ -1,30 +1,30 @@
-import { ReactNode } from "react";
-import { cookies } from "next/headers";
+import React from "react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/auth";
+import SessionProvider from "@/components/providers/session-provider";
 import { AppSidebar } from "@/components/layout/sidebar";
 import { Navbar } from "@/components/layout/navbar";
 import { GlobalModals } from "@/components/layout/global-modals";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
-interface MainLayoutProps {
-  children: ReactNode;
-}
-
-export default async function MainLayout({ children }: MainLayoutProps) {
-  const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
+export default async function MainLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await getServerSession(authOptions);
 
   return (
-    <SidebarProvider defaultOpen={defaultOpen}>
-      <AppSidebar />
-      <main className="flex-1 flex flex-col">
-        <Navbar />
-        <div className="flex-1 overflow-y-auto">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            {children}
-          </div>
+    <SessionProvider session={session}>
+      <div className="grid min-h-screen w-full grid-cols-1 md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+        <AppSidebar />
+        <div className="flex flex-col">
+          <Navbar />
+          <main className="flex-1 p-4 sm:p-6">{children}</main>
         </div>
-      </main>
-      <GlobalModals />
-    </SidebarProvider>
+        <GlobalModals />
+        <SidebarTrigger className="fixed bottom-4 right-4 md:hidden" />
+      </div>
+    </SessionProvider>
   );
 }

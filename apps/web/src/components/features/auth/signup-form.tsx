@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useFormState, useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +30,22 @@ function SubmitButton() {
 export function SignupForm() {
   const initialState = { message: "", errors: {} };
   const [state, dispatch] = useFormState(signUpAction, initialState);
+  const router = useRouter();
+
+  // If the email is already registered, show the error and redirect to /login automatically
+  useEffect(() => {
+    const msg = state?.message || "";
+    if (
+      msg === "Email already registered" ||
+      msg === "User with this email already exists" ||
+      msg.toLowerCase().includes("already exists")
+    ) {
+      const t = setTimeout(() => {
+        router.push("/login?registered=true");
+      }, 1500);
+      return () => clearTimeout(t);
+    }
+  }, [state?.message, router]);
 
   return (
     <Card className="w-full max-w-md">
@@ -43,7 +61,12 @@ export function SignupForm() {
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{state.message}</AlertDescription>
+              <AlertDescription>
+                {state.message === "Email already registered" ||
+                state.message === "User with this email already exists"
+                  ? "Email already registered. Redirecting to login..."
+                  : state.message}
+              </AlertDescription>
             </Alert>
           )}
           <div className="space-y-2">

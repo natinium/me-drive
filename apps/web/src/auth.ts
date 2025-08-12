@@ -1,71 +1,80 @@
-import NextAuth, { AuthOptions } from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import { ApiResponse, AuthResponse } from "@/types";
+import NextAuth from "next-auth";
+import type { NextAuthConfig } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import type { AuthResponse } from "@/types";
 
-export const authOptions: AuthOptions = {
+export const authOptions: NextAuthConfig = {
   providers: [
-    Credentials({
-      credentials: { email: {}, password: {} },
+    CredentialsProvider({
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
       async authorize(credentials) {
+        console.log("credentials", credentials);
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
-          {
-            method: "POST",
-            body: JSON.stringify(credentials),
-            headers: { "Content-Type": "application/json" },
-          },
-        );
+        const baseUrl =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+        const res = await fetch(`${baseUrl}/auth/login`, {
+          method: "POST",
+          body: JSON.stringify({
+            email: credentials.email,
+            password: credentials.password,
+          }),
+          headers: { "Content-Type": "application/json" },
+        });
 
         if (!res.ok) {
           // You might want to log the error or handle it more gracefully
           return null;
         }
 
-        const apiResponse: ApiResponse<AuthResponse> = await res.json();
-
-        if (apiResponse.success && apiResponse.data) {
-          // NextAuth expects the user object to be returned here.
-          // We are attaching the tokens to it so they can be picked up in the jwt callback.
+        const data: AuthResponse = await res.json();
+        // NextAuth expects the user object to be returned here.
+        // We are attaching the tokens to it so they can be picked up in the jwt callback.
+        if (data && (data as any).user && (data as any).token) {
           return {
-            ...apiResponse.data.user,
-            token: apiResponse.data.token,
-            refreshToken: apiResponse.data.refreshToken,
+            ...(data as any).user,
+            token: (data as any).token,
+            refreshToken: (data as any).refreshToken,
           };
         }
-
         return null;
       },
     }),
   ],
   session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: any) {
       // user is only available on the first sign-in
       if (user) {
-        token.accessToken = user.token;
-        token.refreshToken = user.refreshToken;
-        token.user = {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          avatar: user.avatar,
-          storageUsed: user.storageUsed,
-          storageLimit: user.storageLimit,
-          createdAt: user.createdAt,
-        };
+        token.accessToken = (user as any).token;
+        token.refreshToken = (user as any).refreshToken;
+        const {
+          token: _,
+          refreshToken: __,
+          ...userWithoutTokens
+        } = user as any;
+        token.user = userWithoutTokens;
       }
       // TODO: Add logic to refresh the token if it has expired
       return token;
     },
-    async session({ session, token }) {
-      session.user = token.user;
-      session.accessToken = token.accessToken;
+    async session({ session, token }: any) {
+      session.user = (token as any).user;
+      session.accessToken = (token as any).accessToken;
       return session;
     },
   },
   pages: { signIn: "/login" },
 };
+
+export const {
+  handlers: { GET, POST },
+  auth,
+  signIn,
+  signOut,
+} = NextAuth(authOptions);

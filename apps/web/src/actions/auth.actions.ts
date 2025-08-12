@@ -11,13 +11,16 @@ export async function signOutAction() {
 
 export async function authenticate(prevState: any, formData: FormData) {
   try {
-    await signIn("credentials", formData);
+    await signIn("credentials", {
+      redirectTo: "/dashboard",
+      ...Object.fromEntries(formData.entries()),
+    });
     return { success: true };
   } catch (error) {
     if ((error as Error).message.includes("CredentialsSignin")) {
-      return { error: "Invalid credentials" };
+      throw error;
     }
-    throw error;
+    return { error: "Invalid credentials" };
   }
 }
 
@@ -64,14 +67,19 @@ export async function signUpAction(prevState: any, formData: FormData) {
       password,
       redirectTo: "/dashboard",
     });
+    // If NextAuth didn't throw a redirect, ensure navigation happens
+    redirect("/dashboard");
   } catch (error) {
-    // The signIn function throws an error on redirection, which is expected.
-    // We can safely ignore it here, as the redirection will happen.
-    // For other errors, we might want to log them.
-    if ((error as any).type !== "CredentialsSignin") {
-      console.error("Failed to sign in after registration:", error);
-      // Redirect to login even if auto-signin fails
-      redirect("/login?registered=true");
+    // Re-throw NextAuth redirect so the App Router performs navigation
+    const message = (error as any)?.message || "";
+    if (message.includes("NEXT_REDIRECT")) {
+      throw error;
     }
+    if ((error as any).type === "CredentialsSignin") {
+      throw error;
+    }
+    console.error("Failed to sign in after registration:", error);
+    // Redirect to login even if auto-signin fails
+    redirect("/login?registered=true");
   }
 }

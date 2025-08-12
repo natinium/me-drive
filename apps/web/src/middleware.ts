@@ -1,21 +1,26 @@
-import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { auth } from "./auth"; // Assuming auth is exported from here
 
-export default withAuth(
-  function middleware(req) {
-    // You can add custom logic here if needed, for example, role-based access control.
-    // The default behavior of withAuth is to redirect to the login page if the user is not authenticated.
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token,
-    },
-  },
-);
+export async function middleware(request: NextRequest) {
+  const session = await auth();
+
+  if (!session) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
   // The matcher ensures that the middleware runs on all routes inside the (main) group,
   // while ignoring static files, images, and the favicon.
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|login|signup).*)"],
+  matcher: [
+    "/dashboard/:path*",
+    "/drive/:path*",
+    "/profile/:path*",
+    "/settings/:path*",
+  ],
 };

@@ -1,6 +1,6 @@
 import { Header } from "@/components/features/marketing/Header";
 import { Footer } from "@/components/features/marketing/Footer";
-import { PricingSection } from "@/components/features/marketing/PricingSection";
+import { PricingSection } from "@/components/features/marketing/PricingSection/PricingSection";
 
 export default function PricingPage() {
   return (

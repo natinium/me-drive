@@ -1,5 +1,5 @@
 import { Header } from "@/components/features/marketing/Header";
-import { Footer } from "@/components/features/marketing/Footer";
+import { Footer } from "@/components/features/marketing/Footer/Footer";
 
 export default function PrivacyPolicy() {
   return (

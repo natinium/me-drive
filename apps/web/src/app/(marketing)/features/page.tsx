@@ -1,6 +1,6 @@
 import { Header } from "@/components/features/marketing/Header";
 import { Footer } from "@/components/features/marketing/Footer";
-import { FeatureSection } from "@/components/features/marketing/FeatureSection";
+import { FeatureSection } from "@/components/features/marketing/FeatureSection/FeatureSection";
 
 export default function FeaturesPage() {
   return (

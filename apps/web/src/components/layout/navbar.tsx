@@ -47,6 +47,7 @@ export const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const [searchFocused, setSearchFocused] = useState(false);
   const { data: session } = useSession();
+  console.log("Navbar session:", session);
   const router = useRouter();
 
   return (

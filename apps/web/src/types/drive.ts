@@ -12,8 +12,8 @@ export interface BaseDriveItem {
 
 // File interface matching API response
 export interface DriveFile extends BaseDriveItem {
-  type: "file";
-  mimeType: string;
+  itemType: "file";
+  type: string;
   size: number;
   url: string;
   thumbnailUrl?: string;
@@ -25,7 +25,7 @@ export interface DriveFile extends BaseDriveItem {
 
 // Folder interface matching API response
 export interface DriveFolder extends BaseDriveItem {
-  type: "folder";
+  itemType: "folder";
   parentId: string | null;
   path: string;
   fileCount?: number;

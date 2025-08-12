@@ -1,29 +1,32 @@
+// app/(main)/drive/[...slug]/page.tsx
 "use client";
 
-import React, { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { driveFolders, driveFiles } from "./data";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
 import type { DriveFile, DriveFolder } from "@/types/drive";
-import {
+import type {
   ColumnDef,
+  SortingState,
+  ColumnFiltersState,
+  RowSelectionState,
+} from "@tanstack/react-table";
+import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  SortingState,
-  ColumnFiltersState,
 } from "@tanstack/react-table";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -32,9 +35,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -43,17 +58,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
-import { toast } from "sonner";
 import {
   Folder,
-  File,
   FileText,
   Image,
   Video,
@@ -63,130 +70,174 @@ import {
   Trash2,
   Share2,
   Edit,
-  FolderOpen,
-  Upload,
-  Plus,
   Search,
   ChevronLeft,
   ChevronRight,
   X,
+  Star,
+  Plus,
 } from "lucide-react";
+
+import {
+  listFiles,
+  listFolders,
+  deleteFile,
+  deleteFolder,
+  getFolderPath,
+  downloadFile,
+  renameFile,
+  renameFolder,
+} from "@/lib/api";
+import { useSession } from "next-auth/react";
+
+import { NewFolderModal } from "@/components/features/drive/new-folder-modal";
+import { UploadModal } from "@/components/features/drive/upload-modal";
 import { DriveActionsMenu } from "@/components/features/drive/drive-actions-menu";
 
-export default function MyDrivePage({ folderId }: { folderId?: string } = {}) {
+// ------------------------------------------------------------------
+// Query hooks
+const useFolderPath = (folderId?: string) => {
+  const { data: session } = useSession();
+  return useQuery({
+    queryKey: ["folderPath", folderId],
+    queryFn: (): Promise<{ name: string; id?: string }[]> =>
+      !folderId
+        ? Promise.resolve([{ name: "My Drive" }])
+        : getFolderPath(session!.accessToken as string, folderId).then((p) => [
+            { name: "My Drive" },
+            ...p,
+          ]),
+    enabled: !!session?.accessToken,
+    staleTime: 60_000,
+  });
+};
+
+const useDriveItems = (folderId?: string) => {
+  const { data: session } = useSession();
+  return useQuery({
+    queryKey: ["driveItems", folderId, session?.accessToken],
+    queryFn: async () => {
+      const token = session!.accessToken as string;
+      const [folders, files] = await Promise.all([
+        listFolders(token, folderId),
+        listFiles(token, folderId ? { folderId } : {}),
+      ]);
+      return [
+        ...(Array.isArray(folders) ? folders : []).map((f: DriveFolder) => ({
+          ...f,
+          itemType: "folder" as const,
+        })),
+        ...(Array.isArray(files) ? files : []).map((f: DriveFile) => ({
+          ...f,
+          itemType: "file" as const,
+        })),
+      ];
+    },
+    enabled: !!session?.accessToken,
+  });
+};
+
+// ------------------------------------------------------------------
+export default function MyDrivePage() {
+  const params = useParams();
+  const router = useRouter();
+  const folderId = Array.isArray(params.slug) ? params.slug.at(-1) : undefined;
+
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+
+  // ----------------- State -----------------
   const [sorting, setSorting] = useState<SortingState>([]);
+
+  // Refresh drive items on external events
+  useEffect(() => {
+    const handleDriveRefresh = () => {
+      queryClient.invalidateQueries({ queryKey: ["driveItems", folderId] });
+    };
+    window.addEventListener("drive:refresh", handleDriveRefresh);
+    return () => {
+      window.removeEventListener("drive:refresh", handleDriveRefresh);
+    };
+  }, [queryClient, folderId]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [rowSelection, setRowSelection] = useState({});
   const [globalFilter, setGlobalFilter] = useState("");
-  const [currentPath, setCurrentPath] = useState(
-    folderId ? `/folder/${folderId}` : "/",
-  );
-  const [folderStack, setFolderStack] = useState<DriveFolder[]>([]);
-  const [selectedItem, setSelectedItem] = useState<
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [previewItem, setPreviewItem] = useState<
     DriveFile | DriveFolder | null
   >(null);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const router = useRouter();
+  const [deleteItem, setDeleteItem] = useState<DriveFile | DriveFolder | null>(
+    null,
+  );
+  const [renameItem, setRenameItem] = useState<DriveFile | DriveFolder | null>(
+    null,
+  );
+  const [renameValue, setRenameValue] = useState("");
+  const [openUpload, setOpenUpload] = useState(false);
+  const [openFolder, setOpenFolder] = useState(false);
 
-  interface ExtendedDriveFolder extends DriveFolder {
-    items?: ExtendedDriveFolder[];
-  }
+  // ----------------- Data -----------------
+  const { data: items = [], isLoading } = useDriveItems(folderId);
+  const { data: breadcrumbs = [{ name: "My Drive" }] } =
+    useFolderPath(folderId);
 
-  // Mock nested folder structure
-  const nestedFolders: ExtendedDriveFolder[] = [
-    ...driveFolders.map((folder) => ({
-      ...folder,
-      items: [
-        {
-          id: `${folder.id}-sub1`,
-          name: `Subfolder 1`,
-          type: "folder" as const,
-          parentId: folder.id,
-          path: `${folder.path}/Subfolder 1`,
-          fileCount: 5,
-          folderCount: 0,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          id: `${folder.id}-sub2`,
-          name: `Subfolder 2`,
-          type: "folder" as const,
-          parentId: folder.id,
-          path: `${folder.path}/Subfolder 2`,
-          fileCount: 12,
-          folderCount: 1,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ],
-    })),
-  ];
+  // ----------------- Mutations -----------------
+  const deleteMutation = useMutation({
+    mutationFn: async (item: DriveFile | DriveFolder) => {
+      const token = session!.accessToken as string;
+      return item.itemType === "folder"
+        ? deleteFolder(token, item.id)
+        : deleteFile(token, item.id);
+    },
+    onSuccess: () => {
+      toast.success("Deleted");
+      queryClient.invalidateQueries({ queryKey: ["driveItems", folderId] });
+    },
+    onError: (e: Error) => toast.error(e.message || "Delete failed"),
+  });
 
-  const currentItems = useMemo(() => {
-    const allItems = [...nestedFolders, ...driveFiles];
+  const renameMutation = useMutation({
+    mutationFn: async ({
+      item,
+      name,
+    }: {
+      item: DriveFile | DriveFolder;
+      name: string;
+    }) => {
+      const token = session!.accessToken as string;
+      return item.itemType === "folder"
+        ? renameFolder(token, item.id, name)
+        : renameFile(token, item.id, name);
+    },
+    onSuccess: () => {
+      toast.success("Renamed");
+      queryClient.invalidateQueries({ queryKey: ["driveItems", folderId] });
+    },
+    onError: (e: Error) => toast.error(e.message || "Rename failed"),
+  });
 
-    // Use folderId if provided via props (from dynamic route)
-    if (folderId) {
-      return allItems.filter(
-        (item) =>
-          (item.type === "folder" && item.parentId === folderId) ||
-          (item.type === "file" && item.folderId === folderId),
-      );
-    }
+  // ----------------- Helpers -----------------
+  const formatFileSize = useCallback((bytes: number) => {
+    const sizes = ["B", "KB", "MB", "GB", "TB"];
+    if (!bytes) return "0 B";
+    const i = Math.floor((bytes === 0 ? 0 : Math.log(bytes)) / Math.log(1024));
+    return `${Math.round((bytes / 1024 ** i) * 100) / 100} ${sizes[i]}`;
+  }, []);
 
-    if (currentPath === "/") {
-      return allItems.filter(
-        (item) =>
-          (item.type === "folder" && item.parentId === null) ||
-          (item.type === "file" && item.folderId === null),
-      );
-    }
+  const formatDate = useCallback((dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / 86_400_000);
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Yesterday";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+    return date.toLocaleDateString();
+  }, []);
 
-    const currentFolder = nestedFolders.find((f) => f.path === currentPath);
-    const currentFolderId = currentFolder?.id;
-
-    return allItems.filter(
-      (item) =>
-        (item.type === "folder" && item.parentId === currentFolderId) ||
-        (item.type === "file" && item.folderId === currentFolderId),
-    );
-  }, [currentPath, nestedFolders, folderId]);
-
-  const breadcrumbItems = useMemo(() => {
-    if (folderId) {
-      const folder = nestedFolders.find((f) => f.id === folderId);
-      return [
-        { name: "My Drive", path: "/drive" },
-        { name: folder?.name || "Folder", path: `/drive/${folderId}` },
-      ];
-    }
-
-    if (currentPath === "/") return [{ name: "My Drive", path: "/drive" }];
-
-    const parts = currentPath.split("/").filter(Boolean);
-    const items = [{ name: "My Drive", path: "/drive" }];
-
-    let current = "";
-    parts.forEach((part) => {
-      current += `/${part}`;
-      items.push({ name: part, path: `${current}/` });
-    });
-
-    return items;
-  }, [currentPath, folderId, nestedFolders]);
-
-  const getFileIcon = (item: DriveFile | DriveFolder | null) => {
-    if (!item) {
-      return <File className="h-4 w-4 text-gray-500" />;
-    }
-
-    if (item.type === "folder") {
+  const getFileIcon = useCallback((item: DriveFile | DriveFolder) => {
+    if (item.itemType === "folder")
       return <Folder className="h-4 w-4 text-blue-500" />;
-    }
-
-    const file = item as DriveFile;
-    switch (file.mimeType) {
+    switch ((item as DriveFile).type) {
       case "application/pdf":
         return <FileText className="h-4 w-4 text-red-500" />;
       case "image/jpeg":
@@ -200,245 +251,234 @@ export default function MyDrivePage({ folderId }: { folderId?: string } = {}) {
       case "application/x-rar-compressed":
         return <Archive className="h-4 w-4 text-orange-500" />;
       default:
-        return <File className="h-4 w-4 text-gray-500" />;
+        return <FileText className="h-4 w-4 text-gray-500" />;
     }
-  };
+  }, []);
 
-  const handleFolderClick = (folder: ExtendedDriveFolder) => {
-    router.push(`/drive/${folder.id}`);
-  };
-
-  const handleBreadcrumbClick = (path: string) => {
-    if (path === "/drive") {
-      router.push("/drive");
-    } else if (path.startsWith("/drive/")) {
-      const folderId = path.replace("/drive/", "");
-      router.push(path);
-    } else {
-      setCurrentPath(path);
-      const index = breadcrumbItems.findIndex((item) => item.path === path);
-      setFolderStack(folderStack.slice(0, index - 1));
-    }
-  };
-
-  const handleItemClick = (item: DriveFile | DriveFolder) => {
-    if (item.type === "folder") {
-      handleFolderClick(item as ExtendedDriveFolder);
-    } else {
-      setSelectedItem(item);
-      setIsPreviewOpen(true);
-    }
-  };
-
-  const formatFileSize = (bytes: number): string => {
-    const sizes = ["B", "KB", "MB", "GB", "TB"];
-    if (bytes === 0) return "0 B";
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return `${Math.round((bytes / Math.pow(1024, i)) * 100) / 100} ${sizes[i]}`;
-  };
-
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Yesterday";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    return date.toLocaleDateString();
-  };
-
-  const columns: ColumnDef<DriveFile | DriveFolder>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value: boolean | "indeterminate") =>
-            table.toggleAllPageRowsSelected(!!value)
-          }
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value: boolean | "indeterminate") =>
-            row.toggleSelected(!!value)
-          }
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
-    {
-      accessorKey: "name",
-      header: "Name",
-      cell: ({ row }) => {
-        const item = row.original;
-        return (
-          <div className="flex items-center gap-2">
-            {getFileIcon(item)}
-            <span className="font-medium">{item.name}</span>
-            {/* Note: isStarred is not available in API response, may need to be added later */}
-          </div>
-        );
+  // ----------------- Columns -----------------
+  const columns = useMemo<ColumnDef<DriveFile | DriveFolder>[]>(
+    () => [
+      {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected()}
+            onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
+            aria-label="Select all"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(v) => row.toggleSelected(!!v)}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
+            aria-label="Select row"
+          />
+        ),
+        enableSorting: false,
       },
-    },
-    {
-      accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => {
-        const item = row.original;
-        return (
-          <Badge variant={item.type === "folder" ? "outline" : "secondary"}>
-            {item.type === "folder"
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => {
+          const item = row.original;
+          return (
+            <div className="flex items-center gap-2">
+              {getFileIcon(item)}
+              <span className="font-medium">{item.name}</span>
+              {item.itemType === "file" && (item as DriveFile).isShared && (
+                <Star className="h-3 w-3 text-yellow-500 fill-current" />
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "type",
+        header: "Type",
+        cell: ({ row }) => {
+          const item = row.original;
+          const type =
+            item.itemType === "folder"
               ? "Folder"
-              : (item as DriveFile).mimeType.split("/")[1]?.toUpperCase() ||
-                "FILE"}
-          </Badge>
-        );
+              : (item as DriveFile).type.split("/")[1]?.toUpperCase() || "FILE";
+          return (
+            <Badge
+              variant={item.itemType === "folder" ? "outline" : "secondary"}
+            >
+              {type}
+            </Badge>
+          );
+        },
       },
-    },
-    {
-      accessorKey: "size",
-      header: "Size",
-      cell: ({ row }) => {
-        const item = row.original;
-        const size =
-          item.type === "file" ? (item as DriveFile).size : undefined;
-        return (
+      {
+        accessorKey: "size",
+        header: "Size",
+        cell: ({ row }) => {
+          const size =
+            row.original.itemType === "file"
+              ? (row.original as DriveFile).size
+              : undefined;
+          return (
+            <span className="text-sm text-muted-foreground">
+              {size ? formatFileSize(size) : "—"}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "updatedAt",
+        header: "Modified",
+        cell: ({ row }) => (
           <span className="text-sm text-muted-foreground">
-            {size ? formatFileSize(size) : "—"}
+            {formatDate(row.original.updatedAt)}
           </span>
-        );
+        ),
       },
-    },
-    {
-      accessorKey: "updatedAt",
-      header: "Modified",
-      cell: ({ row }) => {
-        const item = row.original;
-        return (
-          <span className="text-sm text-muted-foreground">
-            {formatDate(item.updatedAt)}
-          </span>
-        );
+      {
+        accessorKey: "isShared",
+        header: "Shared",
+        cell: ({ row }) => {
+          const isShared =
+            row.original.itemType === "file"
+              ? (row.original as DriveFile).isShared
+              : false;
+          return isShared ? (
+            <Badge variant="outline" className="bg-blue-50 text-blue-700">
+              Shared
+            </Badge>
+          ) : null;
+        },
       },
-    },
-    {
-      accessorKey: "isShared",
-      header: "Shared",
-      cell: ({ row }) => {
-        const item = row.original;
-        const isShared =
-          item.type === "file" ? (item as DriveFile).isShared : false;
-        return isShared ? (
-          <Badge variant="outline" className="bg-blue-50 text-blue-700">
-            Shared
-          </Badge>
-        ) : null;
+      {
+        id: "actions",
+        cell: ({ row }) => {
+          const item = row.original;
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="h-8 w-8 p-0"
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {item.itemType === "file" && (
+                  <DropdownMenuItem
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      downloadFile(
+                        session!.accessToken as string,
+                        item.id,
+                        item.name,
+                      );
+                    }}
+                  >
+                    <Download className="mr-2 h-4 w-4" /> Download
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    setRenameItem(item);
+                    setRenameValue(item.name);
+                  }}
+                >
+                  <Edit className="mr-2 h-4 w-4" /> Rename
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                >
+                  <Share2 className="mr-2 h-4 w-4" /> Share
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-red-600"
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    setDeleteItem(item);
+                  }}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
       },
-    },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => {
-        const item = row.original;
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Download className="mr-2 h-4 w-4" />
-                Download
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Share2 className="mr-2 h-4 w-4" />
-                Share
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Edit className="mr-2 h-4 w-4" />
-                Rename
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
-  ];
+    ],
+    [formatFileSize, formatDate, getFileIcon, session],
+  );
 
   const table = useReactTable({
-    data: currentItems,
+    data: items,
     columns,
+    state: { sorting, columnFilters, rowSelection, globalFilter },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     onRowSelectionChange: setRowSelection,
     onGlobalFilterChange: setGlobalFilter,
-    state: {
-      sorting,
-      columnFilters,
-      rowSelection,
-      globalFilter,
-    },
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
+  const handleItemClick = useCallback(
+    (item: DriveFile | DriveFolder) => {
+      if (item.itemType === "folder") {
+        router.push(`/drive/${item.id}`);
+      } else {
+        setPreviewItem(item);
+      }
+    },
+    [router],
+  );
+
+  const handleBreadcrumbClick = useCallback(
+    (id?: string) => router.push(`/drive${id ? `/${id}` : ""}`),
+    [router],
+  );
+
+  if (isLoading)
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-96 w-full" />
+      </div>
+    );
+
   return (
-    <div className="space-y-6">
-      <header className="space-y-2">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">
-            My Drive
-          </h1>
+    <>
+      <div className="space-y-6">
+        <header>
+          <h1 className="text-3xl font-bold tracking-tight mb-2">My Drive</h1>
           <Breadcrumb>
             <BreadcrumbList>
-              {breadcrumbItems.map((item, index) => (
-                <React.Fragment key={item.path}>
-                  <BreadcrumbItem>
-                    {index === breadcrumbItems.length - 1 ? (
-                      <BreadcrumbPage>{item.name}</BreadcrumbPage>
-                    ) : (
-                      <BreadcrumbLink
-                        className="cursor-pointer hover:underline"
-                        onClick={() => handleBreadcrumbClick(item.path || "/")}
-                      >
-                        {item.name}
-                      </BreadcrumbLink>
-                    )}
-                  </BreadcrumbItem>
-                  {index < breadcrumbItems.length - 1 && (
-                    <BreadcrumbSeparator />
+              {breadcrumbs.map((c, i) => (
+                <BreadcrumbItem key={i}>
+                  {i === breadcrumbs.length - 1 ? (
+                    <BreadcrumbPage>{c.name}</BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink
+                      className="cursor-pointer hover:underline"
+                      onClick={() => handleBreadcrumbClick(c.id)}
+                    >
+                      {c.name}
+                    </BreadcrumbLink>
                   )}
-                </React.Fragment>
+                  {i < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
+                </BreadcrumbItem>
               ))}
             </BreadcrumbList>
           </Breadcrumb>
-        </div>
-      </header>
+        </header>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -448,181 +488,217 @@ export default function MyDrivePage({ folderId }: { folderId?: string } = {}) {
               className="pl-8 w-64"
             />
           </div>
+          <div className="flex items-center gap-2">
+            <NewFolderModal
+              open={openFolder}
+              onOpenChange={setOpenFolder}
+              currentFolderId={folderId}
+            />
+            <UploadModal
+              open={openUpload}
+              onOpenChange={setOpenUpload}
+              currentFolderId={folderId}
+            />
+            <DriveActionsMenu
+              folderId={folderId}
+              onNewFolderClick={() => setOpenFolder(true)}
+              onUploadFileClick={() => setOpenUpload(true)}
+            />
+          </div>
         </div>
 
-        <DriveActionsMenu folderId={folderId} />
-      </div>
-
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="cursor-pointer hover:bg-accent/50 transition-colors"
-                  onClick={() => handleItemClick(row.original)}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((hg) => (
+                <TableRow key={hg.id}>
+                  {hg.headers.map((h) => (
+                    <TableHead key={h.id}>
+                      {h.isPlaceholder
+                        ? null
+                        : flexRender(h.column.columnDef.header, h.getContext())}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((r) => (
+                  <TableRow
+                    key={r.id}
+                    data-state={r.getIsSelected() && "selected"}
+                    className="cursor-pointer hover:bg-accent/50"
+                    onClick={() => handleItemClick(r.original)}
+                  >
+                    {r.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No items.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected
           </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <ChevronLeft className="h-4 w-4" /> Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
-      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh]">
+      {/* Preview */}
+      <Dialog
+        open={!!previewItem}
+        onOpenChange={(o) => !o && setPreviewItem(null)}
+      >
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {getFileIcon(selectedItem)}
-              {selectedItem?.name}
+              {previewItem && getFileIcon(previewItem)} {previewItem?.name}
             </DialogTitle>
           </DialogHeader>
-          <div className="mt-4">
-            {selectedItem?.type === "file" && (
-              <div className="space-y-4">
-                <div className="bg-muted p-4 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    File Details
-                  </p>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium">Type:</span>{" "}
-                      {(selectedItem as DriveFile).mimeType || "Unknown"}
-                    </div>
-                    <div>
-                      <span className="font-medium">Size:</span>{" "}
-                      {formatFileSize((selectedItem as DriveFile).size || 0)}
-                    </div>
-                    <div>
-                      <span className="font-medium">Modified:</span>{" "}
-                      {formatDate((selectedItem as DriveFile).updatedAt)}
-                    </div>
-                    <div>
-                      <span className="font-medium">Path:</span>{" "}
-                      {(selectedItem as DriveFile).folderId || "Root"}
-                    </div>
+          <div className="space-y-4">
+            {previewItem?.itemType === "file" && (
+              <>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <strong>Type:</strong> {(previewItem as DriveFile).type}
+                  </div>
+                  <div>
+                    <strong>Size:</strong>{" "}
+                    {formatFileSize((previewItem as DriveFile).size)}
+                  </div>
+                  <div>
+                    <strong>Modified:</strong>{" "}
+                    {formatDate(previewItem.updatedAt)}
                   </div>
                 </div>
-                <div className="flex justify-end gap-2">
+                <DialogFooter>
                   <Button
                     variant="outline"
-                    onClick={() => setIsPreviewOpen(false)}
+                    onClick={() => setPreviewItem(null)}
                   >
-                    <X className="mr-2 h-4 w-4" />
-                    Close
+                    <X className="mr-2 h-4 w-4" /> Close
                   </Button>
-                  <Button>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
+                  <Button
+                    onClick={() =>
+                      downloadFile(
+                        session!.accessToken as string,
+                        previewItem.id,
+                        previewItem.name,
+                      )
+                    }
+                  >
+                    <Download className="mr-2 h-4 w-4" /> Download
                   </Button>
-                </div>
-              </div>
+                </DialogFooter>
+              </>
             )}
-            {selectedItem?.type === "folder" && (
-              <div className="space-y-4">
-                <div className="bg-muted p-4 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Folder Details
-                  </p>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium">Files:</span>{" "}
-                      {(selectedItem as ExtendedDriveFolder).fileCount || 0}
-                    </div>
-                    <div>
-                      <span className="font-medium">Folders:</span>{" "}
-                      {(selectedItem as ExtendedDriveFolder).folderCount || 0}
-                    </div>
-                    <div>
-                      <span className="font-medium">Modified:</span>{" "}
-                      {formatDate(
-                        (selectedItem as ExtendedDriveFolder).updatedAt,
-                      )}
-                    </div>
-                    <div>
-                      <span className="font-medium">Path:</span>{" "}
-                      {(selectedItem as ExtendedDriveFolder).path}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsPreviewOpen(false)}
-                  >
-                    <X className="mr-2 h-4 w-4" />
-                    Close
-                  </Button>
-                </div>
-              </div>
+            {previewItem?.itemType === "folder" && (
+              <>
+                <p className="text-sm">Folder details placeholder…</p>
+                <DialogFooter>
+                  <Button onClick={() => setPreviewItem(null)}>Close</Button>
+                </DialogFooter>
+              </>
             )}
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+
+      {/* Delete */}
+      <Dialog
+        open={!!deleteItem}
+        onOpenChange={(o) => !o && setDeleteItem(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete “{deleteItem?.name}”?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            This action cannot be undone.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteItem(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteMutation.mutate(deleteItem!)}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Rename */}
+      <Dialog
+        open={!!renameItem}
+        onOpenChange={(o) => !o && setRenameItem(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename {renameItem?.itemType}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4">
+            <Label htmlFor="rename">Name</Label>
+            <Input
+              id="rename"
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRenameItem(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                renameMutation.mutate({ item: renameItem!, name: renameValue });
+                setRenameItem(null);
+              }}
+            >
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

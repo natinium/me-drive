@@ -94,12 +94,22 @@ export const RecentFilesTable = ({
               {files.map((file) => (
                 <TableRow key={file.id}>
                   <TableCell className="font-medium flex items-center gap-2">
-                    {getFileIcon(file.mimeType)}
+                    {getFileIcon(
+                      (file as any).mimeType ||
+                        (file as any).type ||
+                        "unknown/unknown",
+                    )}
                     {file.name}
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary">
-                      {file.mimeType.split("/")[1].toUpperCase()}
+                      {(
+                        (file as any).mimeType ||
+                        (file as any).type ||
+                        "unknown/unknown"
+                      )
+                        .split("/")[1]
+                        ?.toUpperCase() || "FILE"}
                     </Badge>
                   </TableCell>
                   <TableCell>{formatFileSize(file.size)}</TableCell>

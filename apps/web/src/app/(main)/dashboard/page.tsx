@@ -1,18 +1,40 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   DashboardStats,
   RecentFilesTable,
   StorageBreakdown,
 } from "@/components/features/dashboard";
 import { toast } from "sonner";
-import { dashboardStats, recentActivities } from "./data";
+import { getDashboardStats } from "@/lib/api";
+import { useSession } from "next-auth/react";
 
 export default function DashboardPage() {
-  // For now, use empty array as we don't have actual DriveFile objects
-  // In a real app, this would come from the API
-  const recentFiles = dashboardStats.recentFiles;
+  const { data: session } = useSession();
+  const [stats, setStats] = useState<{
+    totalFiles: number;
+    totalFolders: number;
+    storageUsed: number;
+    storageLimit: number;
+    recentFiles: any[];
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const run = async () => {
+      try {
+        if (!session?.accessToken) return;
+        const s = await getDashboardStats(session.accessToken as string);
+        setStats(s);
+      } catch (e: any) {
+        toast.error(e?.message || "Failed to load dashboard stats");
+      } finally {
+        setLoading(false);
+      }
+    };
+    run();
+  }, [session?.accessToken]);
 
   return (
     <div className="space-y-6">
@@ -25,19 +47,21 @@ export default function DashboardPage() {
         </p>
       </header>
 
-      <DashboardStats
-        totalFiles={dashboardStats.totalFiles}
-        totalFolders={dashboardStats.totalFolders}
-        storageUsed={`${(dashboardStats.storageUsed / (1024 * 1024 * 1024)).toFixed(1)} GB`}
-        storageTotal={`${(dashboardStats.storageLimit / (1024 * 1024 * 1024)).toFixed(1)} GB`}
-        storagePercentage={Math.round(
-          (dashboardStats.storageUsed / dashboardStats.storageLimit) * 100,
-        )}
-      />
+      {stats && (
+        <DashboardStats
+          totalFiles={stats.totalFiles}
+          totalFolders={stats.totalFolders}
+          storageUsed={`${(Number(stats.storageUsed) / (1024 * 1024 * 1024)).toFixed(1)} GB`}
+          storageTotal={`${(Number(stats.storageLimit) / (1024 * 1024 * 1024)).toFixed(1)} GB`}
+          storagePercentage={Math.round(
+            (Number(stats.storageUsed) / Number(stats.storageLimit)) * 100,
+          )}
+        />
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <RecentFilesTable files={recentFiles} />
+          <RecentFilesTable files={stats?.recentFiles ?? []} />
         </div>
         <div className="lg:col-span-1">
           <StorageBreakdown />

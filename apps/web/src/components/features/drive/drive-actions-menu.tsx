@@ -11,8 +11,17 @@ import {
 import { Folder, Upload, Plus } from "lucide-react";
 import { useDriveStore } from "@/stores/drive-store";
 
-export function DriveActionsMenu({ folderId }: { folderId?: string }) {
-  const { openCreateFolderModal, openUploadModal } = useDriveStore();
+export function DriveActionsMenu({
+  folderId,
+  onNewFolderClick,
+  onUploadFileClick,
+}: {
+  folderId?: string;
+  onNewFolderClick: () => void;
+  onUploadFileClick: () => void;
+}) {
+  // Remove useDriveStore dependency
+  // const { openCreateFolderModal, openUploadModal } = useDriveStore();
 
   return (
     <DropdownMenu>
@@ -23,11 +32,11 @@ export function DriveActionsMenu({ folderId }: { folderId?: string }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => openCreateFolderModal(folderId)}>
+        <DropdownMenuItem onClick={onNewFolderClick}>
           <Folder className="mr-2 h-4 w-4" />
           New Folder
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => openUploadModal(folderId)}>
+        <DropdownMenuItem onClick={onUploadFileClick}>
           <Upload className="mr-2 h-4 w-4" />
           Upload File
         </DropdownMenuItem>

@@ -1,8 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, File } from '@prisma/client';
 import { PrismaService } from '../../database/prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { CreateFileDto } from './dto/create-file.dto';
+
+// Custom type to handle BigInt serialization
+export type SafeFile = Omit<File, 'size'> & { size: string };
 
 @Injectable()
 export class FilesService {
@@ -11,16 +14,31 @@ export class FilesService {
     private readonly storageService: StorageService,
   ) {}
 
-  async findAll(userId: string, args: Prisma.FileFindManyArgs) {
-    return this.prisma.file.findMany({
+  private toSafeFile(file: File): SafeFile {
+    return {
+      ...file,
+      size: file.size.toString(),
+    };
+  }
+
+  private toSafeFiles(files: File[]): SafeFile[] {
+    return files.map(this.toSafeFile);
+  }
+
+  async findAll(
+    userId: string,
+    args: Prisma.FileFindManyArgs,
+  ): Promise<SafeFile[]> {
+    const files = await this.prisma.file.findMany({
       where: {
         ownerId: userId,
       },
       ...args,
     });
+    return this.toSafeFiles(files);
   }
 
-  async findOne(userId: string, id: string) {
+  async findOne(userId: string, id: string): Promise<SafeFile> {
     const file = await this.prisma.file.findFirst({
       where: { id, ownerId: userId },
     });
@@ -29,26 +47,28 @@ export class FilesService {
       throw new NotFoundException('File not found');
     }
 
-    return file;
+    return this.toSafeFile(file);
   }
 
   async uploadFile(
     userId: string,
     file: Express.Multer.File,
     createFileDto: CreateFileDto,
-  ) {
+  ): Promise<SafeFile> {
     const uploadedFile = await this.storageService.upload(file);
 
-    return this.prisma.file.create({
+    const url: string = uploadedFile.secure_url || uploadedFile.url;
+    const newFile = await this.prisma.file.create({
       data: {
         name: createFileDto.name || file.originalname,
         type: file.mimetype,
-        size: file.size,
-        url: uploadedFile.secure_url,
-        thumbnailUrl: uploadedFile.secure_url, // Placeholder for thumbnail
+        size: BigInt(file.size),
+        url,
+        thumbnailUrl: url, // Placeholder for thumbnail
         ownerId: userId,
         folderId: createFileDto.folderId,
       },
     });
+    return this.toSafeFile(newFile);
   }
 }

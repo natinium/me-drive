@@ -8,8 +8,10 @@ import {
   UseGuards,
   UseInterceptors,
   Body,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { FilesService } from './files.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -48,12 +50,15 @@ export class FilesController {
       },
     },
   })
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   uploadFile(
     @CurrentUser() user: { userId: string },
     @UploadedFile() file: Express.Multer.File,
     @Body() createFileDto: CreateFileDto,
   ) {
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
     return this.filesService.uploadFile(user.userId, file, createFileDto);
   }
 

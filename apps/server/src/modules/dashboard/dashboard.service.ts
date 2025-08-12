@@ -17,13 +17,23 @@ export class DashboardService {
 
     const totalFiles = await this.prisma.file.count({ where: { ownerId } });
     const totalFolders = await this.prisma.folder.count({ where: { ownerId } });
-    const recentFiles = await this.getRecentFiles(ownerId, 5);
+    const recentFilesRaw = await this.getRecentFiles(ownerId, 5);
+    const recentFiles = recentFilesRaw.map((f: any) => ({
+      ...f,
+      size: typeof f.size === 'bigint' ? Number(f.size) : f.size,
+    }));
 
     return {
       totalFiles,
       totalFolders,
-      storageUsed: user.storageUsed,
-      storageLimit: user.storageLimit,
+      storageUsed:
+        typeof user.storageUsed === 'bigint'
+          ? Number(user.storageUsed)
+          : (user.storageUsed as any),
+      storageLimit:
+        typeof user.storageLimit === 'bigint'
+          ? Number(user.storageLimit)
+          : (user.storageLimit as any),
       recentFiles,
     };
   }

@@ -70,12 +70,34 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command: "yarn workspace web dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
-    stdout: "pipe",
-    stderr: "pipe",
-  },
+  /* Run local dev servers before starting the tests */
+  webServer: [
+    {
+      // Start API server (NestJS)
+      command: "yarn workspace server dev",
+      url: "http://localhost:3001",
+      reuseExistingServer: !process.env.CI,
+      stdout: "pipe",
+      stderr: "pipe",
+      env: {
+        JWT_SECRET: process.env.JWT_SECRET || "dev",
+        JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || "dev2",
+        STORAGE_DRIVER: process.env.STORAGE_DRIVER || "local",
+        UPLOADS_DIR: process.env.UPLOADS_DIR || "apps/server/uploads",
+        PUBLIC_BASE_URL: process.env.PUBLIC_BASE_URL || "http://localhost:3001",
+      },
+    },
+    {
+      // Start Web app (Next.js)
+      command: "yarn workspace web dev",
+      url: "http://localhost:3000",
+      reuseExistingServer: !process.env.CI,
+      stdout: "pipe",
+      stderr: "pipe",
+      env: {
+        NEXT_PUBLIC_API_URL:
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
+      },
+    },
+  ],
 });

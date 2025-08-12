@@ -2,6 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import * as express from 'express';
+import * as path from 'path';
+import { ConfigService } from '@nestjs/config';
 
 function setupSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
@@ -30,6 +33,12 @@ async function bootstrap() {
   );
 
   setupSwagger(app);
+
+  // Serve local uploads directory (for local storage driver)
+  const config = app.get(ConfigService);
+  const uploadsDir =
+    config.get<string>('UPLOADS_DIR') || path.join(process.cwd(), 'uploads');
+  app.use('/uploads', express.static(uploadsDir));
 
   await app.listen(process.env.PORT ?? 3001);
 }

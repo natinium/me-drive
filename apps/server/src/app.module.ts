@@ -10,6 +10,7 @@ import { StorageModule } from './modules/storage/storage.module';
 import { FoldersModule } from './modules/folders/folders.module';
 import { SharingModule } from './modules/sharing/sharing.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     FoldersModule,
     SharingModule,
     DashboardModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

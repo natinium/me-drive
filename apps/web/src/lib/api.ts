@@ -230,7 +230,7 @@ export const getDashboardStats = (
 // FOLDERS
 // -----------------------------------------------------------------------------
 export const listFolders = (token: string, parentId?: string) => {
-  const url = `/folders${parentId ? `?parentId=${encodeURIComponent(parentId)}` : ""}`;
+  const url = `/folders?parentId=${encodeURIComponent(parentId ?? "")}`;
   return http.get(url, token);
 };
 

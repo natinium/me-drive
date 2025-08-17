@@ -51,7 +51,7 @@ export const NewFolderModal = ({
       });
       toast.success(`Folder "${folderName}" created`);
       queryClient.invalidateQueries({
-        queryKey: ["driveItems", currentFolderId],
+        queryKey: ["driveItems", currentFolderId, session?.accessToken],
       });
       onOpenChange(false); // Use onOpenChange to close
       setFolderName("");

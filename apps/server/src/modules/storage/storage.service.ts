@@ -7,33 +7,31 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class StorageService {
   constructor(private readonly configService: ConfigService) {
-    // Parse the Cloudinary URL if provided
-    const cloudinaryUrl = this.configService.get<string>('CLOUDINARY_URL');
+    // Configure Cloudinary with individual environment variables
+    const cloudName = this.configService.get<string>('CLOUDINARY_CLOUD_NAME');
+    const apiKey = this.configService.get<string>('CLOUDINARY_API_KEY');
+    const apiSecret = this.configService.get<string>('CLOUDINARY_API_SECRET');
 
-    if (cloudinaryUrl) {
-      // Parse the URL format: cloudinary://<api_key>:<api_secret>@<cloud_name>
-      const url = new URL(cloudinaryUrl);
-      const apiKey = url.username;
-      const apiSecret = url.password;
-      const cloudName = url.hostname;
-
+    if (cloudName && apiKey && apiSecret) {
       cloudinary.config({
         cloud_name: cloudName,
         api_key: apiKey,
         api_secret: apiSecret,
       });
-    } else {
-      // Fallback to individual environment variables
-      cloudinary.config({
-        cloud_name: this.configService.get<string>('CLOUDINARY_CLOUD_NAME'),
-        api_key: this.configService.get<string>('CLOUDINARY_API_KEY'),
-        api_secret: this.configService.get<string>('CLOUDINARY_API_SECRET'),
+
+      console.log('Cloudinary configured with individual variables:', {
+        cloud_name: cloudName,
+        api_key: apiKey,
+        // Don't log api_secret for security
       });
+    } else {
+      console.log('Cloudinary not configured properly');
     }
   }
 
   async upload(file: Express.Multer.File): Promise<UploadApiResponse | any> {
     const driver = this.configService.get<string>('STORAGE_DRIVER') || 'local';
+    console.log('Using storage driver:', driver);
 
     if (driver === 'cloudinary') {
       return new Promise((resolve, reject) => {
@@ -45,12 +43,18 @@ export class StorageService {
           },
           (error, result) => {
             if (error) {
+              console.error('Cloudinary upload error:', error);
               return reject(error);
             }
             if (result) {
+              console.log('Cloudinary upload result:', result);
               resolve(result);
             } else {
-              reject(new Error('Upload failed, no result from Cloudinary'));
+              const error = new Error(
+                'Upload failed, no result from Cloudinary',
+              );
+              console.error(error.message);
+              reject(error);
             }
           },
         );
@@ -59,6 +63,7 @@ export class StorageService {
     }
 
     // Local storage fallback
+    console.log('Using local storage fallback');
     const uploadsDir =
       this.configService.get<string>('UPLOADS_DIR') ||
       path.join(process.cwd(), 'uploads');

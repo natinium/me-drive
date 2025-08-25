@@ -1,35 +1,39 @@
-name: Release Workflow
+name: Release
 
 on:
   push:
     branches:
-      - main # This workflow will trigger on pushes to the 'main' branch
+      - main
 
 permissions:
-  contents: read # Default permissions: only read access to the repository contents
+  contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
-  dummy_release_check: # Renamed job to indicate it's a dummy run
-    name: Run Dummy Release Check
-    runs-on: ubuntu-latest # Standard runner environment
-
-    # For a dummy run, you don't need extensive permissions.
-    # The default `contents: read` from the workflow level is usually sufficient.
-    # If you later add a step that, for example, tries to commit to the repo,
-    # you'd need `contents: write` here.
-    permissions:
-      contents: read
-
+  release:
+    name: Release
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository code
+      - name: Checkout
         uses: actions/checkout@v4
-        # For a dummy run, fetch-depth: 0 is not strictly necessary as we don't
-        # need full Git history. But it's harmless to keep if you prefer.
-        # with:
-        #   fetch-depth: 0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Confirm workflow execution
-        run: |
-          echo "Dummy release workflow executed successfully!"
-          echo "This workflow is currently set up to do nothing but confirm its run."
-          echo "When ready for a real release, replace this content with the semantic-release configuration."
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
+        run: npm audit signatures
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release

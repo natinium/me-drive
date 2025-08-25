@@ -1,35 +1,39 @@
-name: Release Workflow
+name: Release
 
 on:
   push:
     branches:
-      - main # This workflow will trigger on pushes to the 'main' branch
+      - main
 
 permissions:
-  contents: write # Allow writing to the repository contents
-  issues: write # Allow writing to issues
-  pull-requests: write # Allow writing to pull requests
+  contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository code
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Fetch all history for all branches and tags
+          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Setup Node.js Environment
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'yarn'
+          node-version: "lts/*"
+          cache: "yarn"
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Run semantic-release
-        run: npx semantic-release
+      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
+        run: npm audit signatures
+
+      - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release

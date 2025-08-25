@@ -1,0 +1,11 @@
+export { default as Header } from "./header";
+export { default as Hero } from "./hero";
+export { default as FeatureSection } from "./feature-section";
+export { default as PricingSection } from "./PricingSection";
+export { default as AboutSection } from "./about-section";
+export { default as FAQSection } from "./faq-section";
+export { default as ContactSection } from "./contact-section";
+export { default as TestimonialsSection } from "./TestimonialsSection";
+export { default as CTA } from "./cta";
+export { default as Footer } from "./footer";
+export { default as Preloader } from "./Preloader";

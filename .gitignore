@@ -14,6 +14,8 @@ node_modules
 
 # Testing
 coverage
+test-results/
+playwright-report/
 
 # Turbo
 .turbo
@@ -36,3 +38,13 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# prompt files
+# docs/ui-docs/
+
+# IDE
+.vscode/
+.idea/
+
+# Kiro
+.kiro/

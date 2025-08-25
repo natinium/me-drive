@@ -1,3 +1,9 @@
+# [1.1.0](https://github.com/natinium/me-drive/compare/v1.0.0...v1.1.0) (2025-08-25)
+
+### Features
+
+- update CI workflow with caching and codecov support ([1a4c312](https://github.com/natinium/me-drive/commit/1a4c31226c086230d491404f8dfc75ab3f1e818b))
+
 # 1.0.0 (2025-08-25)
 
 ### Bug Fixes

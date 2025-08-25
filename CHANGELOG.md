@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/natinium/me-drive/compare/v1.1.0...v1.1.1) (2025-08-25)
+
+### Bug Fixes
+
+- add newline at end of CI workflow file ([268a0b5](https://github.com/natinium/me-drive/commit/268a0b5837b731ec6279736da4e6eded70795179))
+
 # [1.1.0](https://github.com/natinium/me-drive/compare/v1.0.0...v1.1.0) (2025-08-25)
 
 ### Features

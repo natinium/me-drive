@@ -1,9 +1,9 @@
 import React from "react";
 import { auth } from "@/auth";
 import SessionProvider from "@/components/providers/index";
-import { AppSidebar } from "@/components/layout/sidebar";
-import { Navbar } from "@/components/layout/navbar";
-import { GlobalModals } from "@/components/layout/global-modals";
+import AppSidebar from "@/components/layout/sidebar";
+import Navbar from "@/components/layout/navbar";
+import GlobalModals from "@/components/layout/global-modals";
 import { SidebarTrigger, SidebarProvider } from "@/components/ui/sidebar";
 
 export default async function MainLayout({

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -18,10 +18,9 @@ import {
 
 import { listFiles, listFolders, getFolderPath } from "@/lib/api";
 import { useSession } from "next-auth/react";
+import { useDriveStore } from "@/stores/drive-store";
 
-import { NewFolderModal } from "@/components/features/drive/new-folder-modal";
-import { UploadModal } from "@/components/features/drive/upload-modal";
-import { DriveActionsMenu } from "@/components/features/drive/drive-actions-menu";
+import DriveActionsMenu from "@/components/features/drive/drive-actions-menu";
 import { DataTable } from "@/components/ui/data-table";
 import { columns } from "./columns";
 
@@ -81,8 +80,7 @@ export default function MyDrivePage() {
   const folderId = params.folderId as string;
 
   const queryClient = useQueryClient();
-  const [openUpload, setOpenUpload] = useState(false);
-  const [openFolder, setOpenFolder] = useState(false);
+  const { openUploadModal, openCreateFolderModal } = useDriveStore();
 
   // Refresh drive items on external events
   useEffect(() => {
@@ -173,20 +171,10 @@ export default function MyDrivePage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <NewFolderModal
-              open={openFolder}
-              onOpenChange={setOpenFolder}
-              currentFolderId={folderId}
-            />
-            <UploadModal
-              open={openUpload}
-              onOpenChange={setOpenUpload}
-              currentFolderId={folderId}
-            />
             <DriveActionsMenu
               folderId={folderId}
-              onNewFolderClick={() => setOpenFolder(true)}
-              onUploadFileClick={() => setOpenUpload(true)}
+              onNewFolderClick={() => openCreateFolderModal(folderId)}
+              onUploadFileClick={() => openUploadModal(folderId)}
             />
           </div>
         </div>

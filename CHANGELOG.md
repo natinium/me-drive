@@ -1,3 +1,9 @@
+# [1.2.0](https://github.com/natinium/me-drive/compare/v1.1.1...v1.2.0) (2025-08-25)
+
+### Features
+
+- add dummy environment variable to CI workflow ([9e9a6ea](https://github.com/natinium/me-drive/commit/9e9a6ea1c03e44ca378df7027419c0e06213ba64))
+
 ## [1.1.1](https://github.com/natinium/me-drive/compare/v1.1.0...v1.1.1) (2025-08-25)
 
 ### Bug Fixes

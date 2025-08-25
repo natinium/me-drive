@@ -37,13 +37,14 @@ import {
 } from "lucide-react";
 import { signOutAction } from "@/actions/auth.actions";
 import { useSession } from "next-auth/react";
+import styles from "./sidebar.module.css";
 
 const menuItems = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
   { href: "/drive", label: "My Drive", icon: Folder },
 ];
 
-export const AppSidebar = () => {
+const AppSidebar = () => {
   const pathname = usePathname();
   const { openUploadModal, openCreateFolderModal } = useDriveStore();
   const { data: session } = useSession();
@@ -162,3 +163,5 @@ export const AppSidebar = () => {
     </Sidebar>
   );
 };
+
+export default AppSidebar;

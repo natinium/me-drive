@@ -1,5 +1,5 @@
-import { Header } from "@/components/features/marketing/Header";
-import { Footer } from "@/components/features/marketing/Footer/Footer";
+import Header from "@/components/features/marketing/header";
+import Footer from "@/components/features/marketing/footer";
 
 export default function TermsOfService() {
   return (

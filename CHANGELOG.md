@@ -1,3 +1,16 @@
+# [1.3.0](https://github.com/natinium/me-drive/compare/v1.2.3...v1.3.0) (2025-08-26)
+
+### Bug Fixes
+
+- **drive:** handle undefined folder IDs in breadcrumbs ([592c7a0](https://github.com/natinium/me-drive/commit/592c7a06c7f6b851588d2f72baf200c39cf4d49f))
+- **imports:** correct export paths in index files ([7efddb7](https://github.com/natinium/me-drive/commit/7efddb7078dcf08c97b5693c508fe3a9a169e72a))
+- **navbar:** correct user avatar property name ([f1a5eda](https://github.com/natinium/me-drive/commit/f1a5eda03030732abded08261519b454dd277516))
+
+### Features
+
+- **storybook:** setup storybook with vite builder ([c7f9c37](https://github.com/natinium/me-drive/commit/c7f9c37f80f53869f9df80ae7180bc0ea7177770))
+- **ui:** add Textarea component ([184d257](https://github.com/natinium/me-drive/commit/184d25723e9789148e4bf09b7290478f0d24218e))
+
 ## [1.2.3](https://github.com/natinium/me-drive/compare/v1.2.2...v1.2.3) (2025-08-26)
 
 ### Bug Fixes

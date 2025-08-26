@@ -32,10 +32,10 @@ const useFolderPath = (folderId?: string) => {
     queryKey: ["folderPath", folderId],
     queryFn: () => {
       if (!folderId) {
-        return Promise.resolve([{ name: "My Drive" }]);
+        return Promise.resolve([{ name: "My Drive", id: undefined }]);
       }
       return getFolderPath(session!.accessToken as string, folderId).then(
-        (p) => [{ name: "My Drive" }, ...p],
+        (p) => [{ name: "My Drive", id: undefined }, ...p],
       );
     },
     enabled: !!session?.accessToken,
@@ -101,7 +101,7 @@ export default function MyDrivePage() {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
   }, [items]);
-  const { data: breadcrumbs = [{ name: "My Drive" }] } =
+  const { data: breadcrumbs = [{ name: "My Drive", id: undefined }] } =
     useFolderPath(folderId);
 
   useEffect(() => {
@@ -158,7 +158,7 @@ export default function MyDrivePage() {
                     ) : (
                       <BreadcrumbLink
                         className="cursor-pointer hover:underline text-muted-foreground hover:text-foreground transition-colors"
-                        onClick={() => handleBreadcrumbClick(c.id)}
+                        onClick={() => handleBreadcrumbClick(c.id || undefined)}
                       >
                         {c.name}
                       </BreadcrumbLink>

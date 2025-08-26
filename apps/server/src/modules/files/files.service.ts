@@ -14,14 +14,14 @@ export class FilesService {
     private readonly storageService: StorageService,
   ) {}
 
-  private toSafeFile(file: File): SafeFile {
+  private toSafeFile(file: PrismaFile): SafeFile {
     return {
       ...file,
       size: file.size.toString(),
     };
   }
 
-  private toSafeFiles(files: File[]): SafeFile[] {
+  private toSafeFiles(files: PrismaFile[]): SafeFile[] {
     return files.map(this.toSafeFile);
   }
 

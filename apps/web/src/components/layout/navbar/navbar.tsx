@@ -128,7 +128,7 @@ const Navbar = () => {
               >
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src={session.user?.image ?? ""}
+                    src={session.user?.avatar ?? ""}
                     alt={session.user?.name ?? ""}
                   />
                   <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">
@@ -142,7 +142,7 @@ const Navbar = () => {
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10">
                     <AvatarImage
-                      src={session.user?.image ?? ""}
+                      src={session.user?.avatar ?? ""}
                       alt={session.user?.name ?? ""}
                     />
                     <AvatarFallback className="bg-primary/10 text-primary">

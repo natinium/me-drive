@@ -1,3 +1,9 @@
+## [1.2.1](https://github.com/natinium/me-drive/compare/v1.2.0...v1.2.1) (2025-08-26)
+
+### Bug Fixes
+
+- resolve TypeScript errors in web app and server ([d645ac0](https://github.com/natinium/me-drive/commit/d645ac081c3fed16c951e5ffcf53405ee128f14e))
+
 # [1.2.0](https://github.com/natinium/me-drive/compare/v1.1.1...v1.2.0) (2025-08-25)
 
 ### Features

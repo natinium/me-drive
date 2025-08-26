@@ -1,1 +1,1 @@
-# yarn commitlint --edit $1 --verbose
+yarn commitlint --edit $1 --verbose

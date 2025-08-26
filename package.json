@@ -11,6 +11,7 @@
     "check-types": "turbo run check-types",
     "test": "turbo run test",
     "e2e": "turbo run e2e",
+    "lint-staged": "lint-staged",
     "lint:web": "turbo run lint --filter=web",
     "lint:server": "turbo run lint --filter=server",
     "format:web": "turbo run format --filter=web",
@@ -44,7 +45,12 @@
     "packages/*"
   ],
   "lint-staged": {
-    "*.{ts,tsx}": "eslint --fix",
-    "*.{ts,tsx,md}": "prettier --write"
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx,json,md,css}": [
+      "prettier --write"
+    ]
   }
 }

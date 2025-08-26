@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import CTA from "./cta";
 
 // Mock next/link for Storybook
@@ -19,12 +19,14 @@ jest.mock("next/link", () => {
   return MockLink;
 });
 
-export default {
+const meta: Meta<typeof CTA> = {
   title: "Components/Features/Marketing/CTA",
   component: CTA,
-} as ComponentMeta<typeof CTA>;
+};
 
-const Template: ComponentStory<typeof CTA> = (args) => <CTA {...args} />;
+export default meta;
+type Story = StoryObj<typeof CTA>;
 
-export const Default = Template.bind({});
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

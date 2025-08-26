@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import UploadModal from "./upload-modal";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -35,7 +35,7 @@ jest.mock("react-dropzone", () => ({
 
 const queryClient = new QueryClient();
 
-export default {
+const meta: Meta<typeof UploadModal> = {
   title: "Components/Features/Drive/UploadModal",
   component: UploadModal,
   decorators: [
@@ -45,22 +45,23 @@ export default {
       </QueryClientProvider>
     ),
   ],
-} as ComponentMeta<typeof UploadModal>;
-
-const Template: ComponentStory<typeof UploadModal> = (args) => (
-  <UploadModal {...args} />
-);
-
-export const Default = Template.bind({});
-Default.args = {
-  open: true,
-  onOpenChange: (open) => console.log("Modal open state changed:", open),
-  currentFolderId: "root",
 };
 
-export const Closed = Template.bind({});
-Closed.args = {
-  open: false,
-  onOpenChange: (open) => console.log("Modal open state changed:", open),
-  currentFolderId: "root",
+export default meta;
+type Story = StoryObj<typeof UploadModal>;
+
+export const Default: Story = {
+  args: {
+    open: true,
+    onOpenChange: (open) => console.log("Modal open state changed:", open),
+    currentFolderId: "root",
+  },
+};
+
+export const Closed: Story = {
+  args: {
+    open: false,
+    onOpenChange: (open) => console.log("Modal open state changed:", open),
+    currentFolderId: "root",
+  },
 };

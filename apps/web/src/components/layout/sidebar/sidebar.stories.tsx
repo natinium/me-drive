@@ -1,20 +1,23 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import AppSidebar from "./sidebar";
 
-export default {
+const meta: Meta<typeof AppSidebar> = {
   title: "Components/Layout/AppSidebar",
   component: AppSidebar,
   parameters: {
     layout: "fullscreen",
   },
-} as ComponentMeta<typeof AppSidebar>;
+};
 
-const Template: ComponentStory<typeof AppSidebar> = (args) => (
-  <div style={{ height: "100vh" }}>
-    <AppSidebar {...args} />
-  </div>
-);
+export default meta;
+type Story = StoryObj<typeof AppSidebar>;
 
-export const Default = Template.bind({});
-Default.args = {};
+export const Default: Story = {
+  args: {},
+  render: () => (
+    <div style={{ height: "100vh" }}>
+      <AppSidebar />
+    </div>
+  ),
+};

@@ -1,15 +1,15 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import ContactSection from "./contact-section";
 
-export default {
+const meta: Meta<typeof ContactSection> = {
   title: "Components/Features/Marketing/ContactSection",
   component: ContactSection,
-} as ComponentMeta<typeof ContactSection>;
+};
 
-const Template: ComponentStory<typeof ContactSection> = (args) => (
-  <ContactSection {...args} />
-);
+export default meta;
+type Story = StoryObj<typeof ContactSection>;
 
-export const Default = Template.bind({});
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

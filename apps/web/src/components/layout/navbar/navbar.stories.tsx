@@ -1,16 +1,18 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import Navbar from "./navbar";
 
-export default {
+const meta: Meta<typeof Navbar> = {
   title: "Components/Layout/Navbar",
   component: Navbar,
   parameters: {
     layout: "fullscreen",
   },
-} as ComponentMeta<typeof Navbar>;
+};
 
-const Template: ComponentStory<typeof Navbar> = (args) => <Navbar {...args} />;
+export default meta;
+type Story = StoryObj<typeof Navbar>;
 
-export const Default = Template.bind({});
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

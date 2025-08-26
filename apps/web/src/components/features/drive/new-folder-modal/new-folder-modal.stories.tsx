@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import NewFolderModal from "./new-folder-modal";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -27,7 +27,7 @@ jest.mock("sonner", () => ({
 
 const queryClient = new QueryClient();
 
-export default {
+const meta: Meta<typeof NewFolderModal> = {
   title: "Components/Features/Drive/NewFolderModal",
   component: NewFolderModal,
   decorators: [
@@ -37,30 +37,32 @@ export default {
       </QueryClientProvider>
     ),
   ],
-} as ComponentMeta<typeof NewFolderModal>;
-
-const Template: ComponentStory<typeof NewFolderModal> = (args) => (
-  <NewFolderModal {...args} />
-);
-
-export const Default = Template.bind({});
-Default.args = {
-  open: true,
-  onOpenChange: (open) => console.log("Modal open state changed:", open),
-  currentFolderId: "root",
 };
 
-export const Closed = Template.bind({});
-Closed.args = {
-  open: false,
-  onOpenChange: (open) => console.log("Modal open state changed:", open),
-  currentFolderId: "root",
+export default meta;
+type Story = StoryObj<typeof NewFolderModal>;
+
+export const Default: Story = {
+  args: {
+    open: true,
+    onOpenChange: (open) => console.log("Modal open state changed:", open),
+    currentFolderId: "root",
+  },
 };
 
-export const CreatingState = Template.bind({});
-CreatingState.args = {
-  ...Default.args,
-  // Simulate creating state by making createFolder return a pending promise
-  // This requires more advanced mocking or a custom decorator if you want to show it live
-  // For now, it will just show the default button text.
+export const Closed: Story = {
+  args: {
+    open: false,
+    onOpenChange: (open) => console.log("Modal open state changed:", open),
+    currentFolderId: "root",
+  },
+};
+
+export const CreatingState: Story = {
+  args: {
+    ...Default.args,
+    // Simulate creating state by making createFolder return a pending promise
+    // This requires more advanced mocking or a custom decorator if you want to show it live
+    // For now, it will just show the default button text.
+  },
 };

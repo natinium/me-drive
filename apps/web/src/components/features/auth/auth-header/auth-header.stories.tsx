@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import AuthHeader from "./auth-header";
 
 // Mock the Logo component for Storybook
@@ -11,14 +11,14 @@ jest.mock("@/components/ui/logo", () => ({
   ),
 }));
 
-export default {
+const meta: Meta<typeof AuthHeader> = {
   title: "Components/Features/Auth/AuthHeader",
   component: AuthHeader,
-} as ComponentMeta<typeof AuthHeader>;
+};
 
-const Template: ComponentStory<typeof AuthHeader> = (args) => (
-  <AuthHeader {...args} />
-);
+export default meta;
+type Story = StoryObj<typeof AuthHeader>;
 
-export const Default = Template.bind({});
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

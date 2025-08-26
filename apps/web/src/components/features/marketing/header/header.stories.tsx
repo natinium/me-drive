@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import Header from "./header";
 
 // Mock next/link for Storybook
@@ -30,12 +30,14 @@ jest.mock("@/components/ui/sheet", () => ({
   ),
 }));
 
-export default {
+const meta: Meta<typeof Header> = {
   title: "Components/Features/Marketing/Header",
   component: Header,
-} as ComponentMeta<typeof Header>;
+};
 
-const Template: ComponentStory<typeof Header> = (args) => <Header {...args} />;
+export default meta;
+type Story = StoryObj<typeof Header>;
 
-export const Default = Template.bind({});
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

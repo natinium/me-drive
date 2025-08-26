@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import FeatureSection from "./feature-section";
 
 // Mock next/link for Storybook
@@ -19,14 +19,14 @@ jest.mock("next/link", () => {
   return MockLink;
 });
 
-export default {
+const meta: Meta<typeof FeatureSection> = {
   title: "Components/Features/Marketing/FeatureSection",
   component: FeatureSection,
-} as ComponentMeta<typeof FeatureSection>;
+};
 
-const Template: ComponentStory<typeof FeatureSection> = (args) => (
-  <FeatureSection {...args} />
-);
+export default meta;
+type Story = StoryObj<typeof FeatureSection>;
 
-export const Default = Template.bind({});
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

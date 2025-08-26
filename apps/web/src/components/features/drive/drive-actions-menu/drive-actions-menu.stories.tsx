@@ -1,18 +1,18 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import DriveActionsMenu from "./drive-actions-menu";
 
-export default {
+const meta: Meta<typeof DriveActionsMenu> = {
   title: "Components/Features/Drive/DriveActionsMenu",
   component: DriveActionsMenu,
-} as ComponentMeta<typeof DriveActionsMenu>;
+};
 
-const Template: ComponentStory<typeof DriveActionsMenu> = (args) => (
-  <DriveActionsMenu {...args} />
-);
+export default meta;
+type Story = StoryObj<typeof DriveActionsMenu>;
 
-export const Default = Template.bind({});
-Default.args = {
-  onNewFolderClick: () => alert("New Folder clicked"),
-  onUploadFileClick: () => alert("Upload File clicked"),
+export const Default: Story = {
+  args: {
+    onNewFolderClick: () => alert("New Folder clicked"),
+    onUploadFileClick: () => alert("Upload File clicked"),
+  },
 };

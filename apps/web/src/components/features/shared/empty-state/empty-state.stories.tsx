@@ -1,42 +1,47 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import EmptyState from "./empty-state";
 
-export default {
+const meta: Meta<typeof EmptyState> = {
   title: "Components/Features/Shared/EmptyState",
   component: EmptyState,
-} as ComponentMeta<typeof EmptyState>;
-
-const Template: ComponentStory<typeof EmptyState> = (args) => (
-  <EmptyState {...args} />
-);
-
-export const Default = Template.bind({});
-Default.args = {};
-
-export const FoldersEmpty = Template.bind({});
-FoldersEmpty.args = {
-  type: "folders",
 };
 
-export const SearchEmpty = Template.bind({});
-SearchEmpty.args = {
-  type: "search",
+export default meta;
+type Story = StoryObj<typeof EmptyState>;
+
+export const Default: Story = {
+  args: {},
 };
 
-export const UploadEmpty = Template.bind({});
-UploadEmpty.args = {
-  type: "upload",
+export const FoldersEmpty: Story = {
+  args: {
+    type: "folders",
+  },
 };
 
-export const WithActionButton = Template.bind({});
-WithActionButton.args = {
-  actionLabel: "Create New",
-  onAction: () => alert("Action clicked!"),
+export const SearchEmpty: Story = {
+  args: {
+    type: "search",
+  },
 };
 
-export const CustomContent = Template.bind({});
-CustomContent.args = {
-  title: "No Data Available",
-  description: "There is no data to display based on your current filters.",
+export const UploadEmpty: Story = {
+  args: {
+    type: "upload",
+  },
+};
+
+export const WithActionButton: Story = {
+  args: {
+    actionLabel: "Create New",
+    onAction: () => alert("Action clicked!"),
+  },
+};
+
+export const CustomContent: Story = {
+  args: {
+    title: "No Data Available",
+    description: "There is no data to display based on your current filters.",
+  },
 };

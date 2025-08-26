@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import PricingSection from "./pricing-section";
 
 // Mock next/link for Storybook
@@ -19,14 +19,14 @@ jest.mock("next/link", () => {
   return MockLink;
 });
 
-export default {
+const meta: Meta<typeof PricingSection> = {
   title: "Components/Features/Marketing/PricingSection",
   component: PricingSection,
-} as ComponentMeta<typeof PricingSection>;
+};
 
-const Template: ComponentStory<typeof PricingSection> = (args) => (
-  <PricingSection {...args} />
-);
+export default meta;
+type Story = StoryObj<typeof PricingSection>;
 
-export const Default = Template.bind({});
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

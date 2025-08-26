@@ -1,15 +1,15 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import Preloader from "./preloader";
 
-export default {
+const meta: Meta<typeof Preloader> = {
   title: "Components/Features/Marketing/Preloader",
   component: Preloader,
-} as ComponentMeta<typeof Preloader>;
+};
 
-const Template: ComponentStory<typeof Preloader> = (args) => (
-  <Preloader {...args} />
-);
+export default meta;
+type Story = StoryObj<typeof Preloader>;
 
-export const Default = Template.bind({});
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

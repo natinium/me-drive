@@ -1,5 +1,5 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import SignupForm from "./signup-form";
 
 // Mock react-dom's useFormState and useFormStatus for Storybook
@@ -23,14 +23,14 @@ jest.mock("@/actions/auth.actions", () => ({
   signUpAction: jest.fn(),
 }));
 
-export default {
+const meta: Meta<typeof SignupForm> = {
   title: "Components/Features/Auth/SignupForm",
   component: SignupForm,
-} as ComponentMeta<typeof SignupForm>;
+};
 
-const Template: ComponentStory<typeof SignupForm> = (args) => (
-  <SignupForm {...args} />
-);
+export default meta;
+type Story = StoryObj<typeof SignupForm>;
 
-export const Default = Template.bind({});
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

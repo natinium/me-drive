@@ -1,15 +1,15 @@
 import React from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import AboutSection from "./about-section";
 
-export default {
+const meta: Meta<typeof AboutSection> = {
   title: "Components/Features/Marketing/AboutSection",
   component: AboutSection,
-} as ComponentMeta<typeof AboutSection>;
+};
 
-const Template: ComponentStory<typeof AboutSection> = (args) => (
-  <AboutSection {...args} />
-);
+export default meta;
+type Story = StoryObj<typeof AboutSection>;
 
-export const Default = Template.bind({});
-Default.args = {};
+export const Default: Story = {
+  args: {},
+};

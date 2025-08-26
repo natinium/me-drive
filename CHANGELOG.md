@@ -1,3 +1,9 @@
+## [1.2.2](https://github.com/natinium/me-drive/compare/v1.2.1...v1.2.2) (2025-08-26)
+
+### Bug Fixes
+
+- resolve PrismaClientKnownRequestError import and SafeFile type issues ([fda6165](https://github.com/natinium/me-drive/commit/fda6165654f9024dc94c2db0414f5062be4032d5))
+
 ## [1.2.1](https://github.com/natinium/me-drive/compare/v1.2.0...v1.2.1) (2025-08-26)
 
 ### Bug Fixes

@@ -1,3 +1,9 @@
+## [1.2.3](https://github.com/natinium/me-drive/compare/v1.2.2...v1.2.3) (2025-08-26)
+
+### Bug Fixes
+
+- resolve File type conflicts in files service ([905b118](https://github.com/natinium/me-drive/commit/905b1182a33d9d0714c51da178ba29feb16779a8))
+
 ## [1.2.2](https://github.com/natinium/me-drive/compare/v1.2.1...v1.2.2) (2025-08-26)
 
 ### Bug Fixes

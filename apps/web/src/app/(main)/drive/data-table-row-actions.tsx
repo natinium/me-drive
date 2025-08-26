@@ -44,7 +44,10 @@ export function DataTableRowActions<TData>({
     onSuccess: () => {
       toast.success("Deleted");
       queryClient.invalidateQueries({
-        queryKey: ["driveItems", item.parentId],
+        queryKey: [
+          "driveItems",
+          item.itemType === "folder" ? item.parentId : item.folderId,
+        ],
       });
     },
     onError: (e: Error) => toast.error(e.message || "Delete failed"),

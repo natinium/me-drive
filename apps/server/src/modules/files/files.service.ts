@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma, File } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { File } from './entities/file.entity';
 import { PrismaService } from '../../database/prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { CreateFileDto } from './dto/create-file.dto';
@@ -25,10 +26,7 @@ export class FilesService {
     return files.map(this.toSafeFile);
   }
 
-  async findAll(
-    userId: string,
-    args: Prisma.FileFindManyArgs,
-  ): Promise<SafeFile[]> {
+  async findAll(userId: string, args: any): Promise<SafeFile[]> {
     const files = await this.prisma.file.findMany({
       where: {
         ownerId: userId,

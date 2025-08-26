@@ -1,12 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { File } from './entities/file.entity';
+import { Prisma, File as PrismaFile } from '@prisma/client';
 import { PrismaService } from '../../database/prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { CreateFileDto } from './dto/create-file.dto';
 
 // Custom type to handle BigInt serialization
-export type SafeFile = Omit<File, 'size'> & { size: string };
+export type SafeFile = Omit<PrismaFile, 'size'> & { size: string };
 
 @Injectable()
 export class FilesService {

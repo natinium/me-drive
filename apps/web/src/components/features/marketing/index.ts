@@ -8,4 +8,4 @@ export { default as ContactSection } from "./contact-section";
 export { default as TestimonialsSection } from "./TestimonialsSection";
 export { default as CTA } from "./cta";
 export { default as Footer } from "./footer";
-export { default as Preloader } from "./Preloader";
+export { default as Preloader } from "./preloader";
